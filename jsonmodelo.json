@@ -1,0 +1,31 @@
+{
+  "configuracion": {
+    "correo_encargado": "auxiliar1@colegio.edu"
+  },
+  "inventario": {
+    "mapas": {
+      "mapa_europa_fisico": { "nombre": "Mapa Físico de Europa", "stock_total": 3 },
+      "mapa_argentina_politico": { "nombre": "Mapa Político de Argentina", "stock_total": 2 }
+    },
+    "proyectores": {
+      "proyector_hdmi": { "nombre": "Proyector Epson HDMI", "stock_total": 4 }
+    }
+  },
+  "entregas": {
+    "2026-07-06": {
+      "mapas": {
+        "mapa_europa_fisico": {
+          "modulo_0740_0840": {
+            "reserva_gomez_12345": {
+              "profesor": "Prof. Gómez",
+              "email": "gomez@colegio.edu",
+              "cantidad": 1,
+              "aula": "Aula 4º A",
+              "entregado": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
