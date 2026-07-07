@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selección de Equipos</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans invisible" id="app-body">
+
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+        <div>
+            <h1 id="nombre-docente" class="font-bold text-lg">Cargando profesor...</h1>
+            <p class="text-xs opacity-90">Seleccioná un recurso para gestionar</p>
+        </div>
+        
+        <div class="flex gap-2">
+            <button id="boton-ajustes" class="hidden bg-yellow-500 hover:bg-yellow-600 text-xs font-bold px-3 py-2 rounded-xl transition-all">
+                ⚙️ Ajustes
+            </button>
+            <button id="btn-logout" class="bg-red-500 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-xl transition-all">
+                Salir
+            </button>
+        </div>
+    </nav>
+
+    <main class="p-4 max-w-4xl mx-auto w-full flex-grow">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 text-center lg:text-left">
+            Equipos y Materiales Disponibles
+        </h2>
+        
+        <div id="tarjetero-recursos" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            </div>
+    </main>
+
+    <script type="module" src="app-equipos.js"></script>
+</body>
+</html>
