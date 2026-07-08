@@ -4,13 +4,13 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 // 1. Configuración de Firebase (Reemplazá con tus credenciales reales)
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH_DOMAIN",
-    databaseURL: "TU_DATABASE_URL",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_STORAGE_BUCKET",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID"
+  apiKey: "AIzaSyBOgShBOu05UszCBLS-bpTl2f3AI7_I-pY",
+  authDomain: "reservasisd.firebaseapp.com",
+  databaseURL: "https://reservasisd-default-rtdb.firebaseio.com",
+  projectId: "reservasisd",
+  storageBucket: "reservasisd.firebasestorage.app",
+  messagingSenderId: "637702189208",
+  appId: "1:637702189208:web:49ff477b35e299564ca0ed"
 };
 
 // Inicializar Firebase
@@ -46,13 +46,13 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         const email = user.email;
         // Excepción explícita del administrador o dominios del colegio
-        if (email === 'admin_ejemplo@gmail.com' || email.endsWith('@colegio.edu')) {
+        if (email === 'laggerro2@gmail.com' || email.endsWith('@colegio.edu')) {
             
             // Mostrar nombre en barra de navegación
             nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Profesor'}`;
             
             // Mostrar botón de ajustes si es el administrador principal
-            if (email === 'admin_ejemplo@gmail.com') {
+            if (email === 'laggerro2@gmail.com') {
                 botonAjustes.classList.remove('hidden');
             }
 
@@ -67,7 +67,7 @@ onAuthStateChanged(auth, (user) => {
         }
     } else {
         // Redirigir si no está logueado
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     }
 });
 
@@ -153,7 +153,7 @@ window.irAlCalendario = function(categoria, recursoId) {
 // 5. FUNCIÓN DE SALIDA
 function desconectarSesion() {
     signOut(auth).then(() => {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     }).catch((error) => {
         console.error("Error al salir: ", error);
     });

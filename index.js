@@ -1,7 +1,14 @@
 
-        // Configuración de Firebase (Completar con tus datos reales)
-       
-             const firebaseConfig = {
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+    getAuth, 
+    signInWithPopup, // Cambiamos a Popup
+    GoogleAuthProvider, 
+    signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
   apiKey: "AIzaSyBOgShBOu05UszCBLS-bpTl2f3AI7_I-pY",
   authDomain: "reservasisd.firebaseapp.com",
   databaseURL: "https://reservasisd-default-rtdb.firebaseio.com",
@@ -11,39 +18,39 @@
   appId: "1:637702189208:web:49ff477b35e299564ca0ed"
 };
 
- firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-        // Persistencia Local de la sesión
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+const btnLogin = document.getElementById('btn-login');
+const contenedorError = document.getElementById('mensaje-error');
 
-        // Si ya hay sesión activa, salta directo a la pantalla de selección de equipos
-       firebase.auth().onAuthStateChanged((usuario) => {
-    if (usuario) {
-        const esAdmin = usuario.email === "laggerro2@gmail.com"; // <-- COLOCÁ ACÁ TU CORREO EXACTO
-        const esColegio = usuario.email.endsWith("@colegio.edu");
-
-        if (esAdmin || esColegio) {
-            window.location.href = "equipos.html";
-        }
-    }
-});
-
-function identificarConGoogle() {
-    const proveedor = new firebase.auth.GoogleAuthProvider();
-    proveedor.setCustomParameters({ prompt: 'select_account' });
-
-    firebase.auth().signInWithPopup(proveedor)
-    .then((resultado) => {
-        const email = resultado.user.email;
-        const esAdmin = email === "laggerro2@gmail.com"; // <-- COLOCÁ ACÁ TU CORREO EXACTO
-        const esColegio = email.endsWith("@colegio.edu");
-
-        if (esAdmin || esColegio) {
-            window.location.href = "equipos.html";
-        } else {
-            alert("Acceso denegado. Solo se permiten correos @colegio.edu o la cuenta del administrador.");
-            firebase.auth().signOut();
-        }
-    })
-    .catch(error => alert("Error en autenticación: " + error.message));
+function mostrarError(mensaje) {
+    contenedorError.textContent = mensaje;
+    contenedorError.classList.remove('hidden');
 }
+
+// EVENTO DE INICIO DE SESIÓN
+btnLogin.addEventListener('click', () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    // signInWithPopup abre la ventana, el usuario elige su cuenta y la respuesta vuelve ACÁ mismo
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            const email = result.user.email;
+            const esAdmin = email === "laggerro2@gmail.com";
+            const esColegio = email.endsWith("@colegio.edu");
+
+            if (esAdmin || esColegio) {
+                // Redirección limpia a la pantalla de equipos
+                window.location.href = "equipos.html";
+            } else {
+                mostrarError("Acceso denegado. Dominio no autorizado.");
+                signOut(auth);
+            }
+        })
+        .catch((error) => {
+            console.error("Error en el login:", error);
+            mostrarError("Error al iniciar sesión: " + error.message);
+        });
+});
