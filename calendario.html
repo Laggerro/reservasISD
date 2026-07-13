@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas - ISD</title>
+    <!-- Tailwind CSS para el diseño rápido (opcional, usá tus estilos si ya tenés) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- CSS de FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-bold">Reserva de Equipos ISD</h1>
+    
+    <!-- Agrupamos los botones a la derecha -->
+    <div class="flex gap-2">
+        <!-- NUEVO BOTÓN VOLVER -->
+        <button id="btn-volver" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold transition border border-blue-400">
+            ← Volver a Equipos
+        </button>
+        
+        <button id="btn-logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm transition">
+            Cerrar Sesión
+        </button>
+    </div>
+</nav>
+
+    <main class="container mx-auto my-8 p-4 bg-white rounded-lg shadow-md max-w-5xl">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 text-center">Calendario de Reservas</h2>
+        
+        <!-- ACÁ SE VA A DIBUJAR EL CALENDARIO -->
+        <div id="calendar" class="p-2"></div>
+    </main>
+
+    <!-- MODAL PARA NUEVA RESERVA -->
+<div id="modal-reserva" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 animate-fade-in">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Nueva Reserva</h3>
+        <p id="modal-fecha-texto" class="text-sm text-gray-500 mb-4 font-medium"></p>
+        
+        <form id="form-reserva">
+            <!-- Selector de Módulo Horario -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="periodo">
+                    Seleccionar Período / Hora:
+                </label>
+                <select id="periodo" class="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <option value="" disabled selected>Elegí un módulo...</option>
+                    <!-- Mañana -->
+                    <option value="07:30-08:30">1ra Hora (07:30 - 08:30)</option>
+                    <option value="08:30-09:30">2da Hora (08:30 - 09:30)</option>
+                    <option value="09:30-10:30">3ra Hora (09:30 - 10:30)</option>
+                    <option value="10:30-11:30">4ta Hora (10:30 - 11:30)</option>
+                    <option value="11:30-12:30">5ta Hora (11:30 - 12:30)</option>
+                    <option value="12:30-13:30">6ta Hora (12:30 - 13:30)</option>
+                    <!-- Tarde -->
+                    <option value="13:30-14:30">7ma Hora (13:30 - 14:30)</option>
+                    <option value="14:30-15:30">8va Hora (14:30 - 15:30)</option>
+                    <option value="15:30-16:30">9na Hora (15:30 - 16:30)</option>
+                    <option value="16:30-17:30">10ma Hora (16:30 - 17:30)</option>
+                    <option value="17:30-18:30">11va Hora (17:30 - 18:30)</option>
+                </select>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="btn-cerrar-modal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded transition text-sm">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition text-sm font-semibold">
+                    Confirmar Reserva
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Scripts de FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <!-- Tu script de Firebase y lógica del calendario -->
+    <script type="module" src="app-calendario.js"></script>
+</body>
+</html>

@@ -25,21 +25,8 @@ const botonAjustes = document.getElementById('boton-ajustes');
 const btnLogout = document.getElementById('btn-logout');
 const tarjeteroRecursos = document.getElementById('tarjetero-recursos');
 
-// Diccionario "Anti-Frustración" de fotos y descripciones basado en las categorías de tu JSON
-const infoVisualPorCategoria = {
-    "mapas": {
-        foto: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=500&auto=format&fit=crop&q=60",
-        descripcion: "Mapas físicos y políticos en soporte enrollable para colgar en el aula."
-    },
-    "proyectores": {
-        foto: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=500&auto=format&fit=crop&q=60",
-        descripcion: "Proyectores multimedia portátiles con cables listos para conectar a la notebook."
-    },
-    "default": {
-        foto: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=500&auto=format&fit=crop&q=60",
-        descripcion: "Material didáctico y equipamiento escolar para uso en clase."
-    }
-};
+
+
 
 // 2. GUARDIÁN DE SESIÓN ESTRICTO
 onAuthStateChanged(auth, (user) => {
@@ -74,82 +61,81 @@ onAuthStateChanged(auth, (user) => {
 // 3. LECTURA EN TIEMPO REAL DEL INVENTARIO (Estructura jerárquica)
 function escucharInventario() {
     const inventarioRef = ref(db, 'inventario');
-
+    
     onValue(inventarioRef, (snapshot) => {
-        // Limpiamos el contenedor antes de inyectar
-        tarjeteroRecursos.innerHTML = '';
+        tarjeteroRecursos.innerHTML = ''; // Limpiamos el contenedor
         const categorias = snapshot.val();
-
+        
         if (!categorias) {
             tarjeteroRecursos.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8">No hay equipos registrados en el inventario.</p>`;
             return;
         }
-
-        // Bucle 1: Recorrer las categorías ("mapas", "proyectores")
+        
+        // Recorrer las categorías ("mapas", "proyectores")
         Object.keys(categorias).forEach(idCategoria => {
             const recursosDeCategoria = categorias[idCategoria];
-
-            // Bucle 2: Recorrer los recursos específicos dentro de esa categoría
+            
+            // Recorrer los recursos específicos dentro de esa categoría
             Object.keys(recursosDeCategoria).forEach(idRecurso => {
                 const item = recursosDeCategoria[idRecurso];
                 const stock = item.stock_total;
                 const tieneStock = stock > 0;
-
-                // Configuración de Colores y Estados Visuales "Anti-Frustración"
-                // Si no hay stock, la ficha no desaparece: se tiñe de un marco rojo suave
+                
+                // Configuración de Estados Visuales
                 const colorBorde = tieneStock ? 'border-green-400' : 'border-red-400 bg-red-50';
                 const badgeColor = tieneStock ? 'bg-green-100 text-green-800' : 'bg-red-200 text-red-900 font-bold';
                 const badgeTexto = tieneStock ? `Disponibles: ${stock}` : 'AGOTADO HOY';
                 const filtroImagen = tieneStock ? 'opacity-100' : 'opacity-40 grayscale';
+                
+                // --- CAMBIO CLAVE: LEER DIRECTO DE FIREBASE O COLOCAR UN MOCK UP POR SI ESTÁ VACÍO ---
+                const rutaImagen = item.imagen || "img/default-recurso.jpg"; 
+                const textoDescripcion = item.descripcion || "Sin descripción disponible momentáneamente.";
 
-                // Obtener foto estática y descripción amigable según la categoría
-                const infoVisual = infoVisualPorCategoria[idCategoria] || infoVisualPorCategoria['default'];
-
-                // Construcción dinámica de la Ficha Individual (Grande y legible para celulares)
+                // Construcción dinámica de la Ficha Individual con tus datos reales
                 const fichaHTML = `
-                    <div class="bg-white rounded-2xl shadow-md border-2 ${colorBorde} overflow-hidden flex flex-col justify-between transition-all transform active:scale-98">
-                        <div>
-                            <img src="${infoVisual.foto}" alt="${item.nombre}" class="w-full h-40 object-cover ${filtroImagen}">
-                            
-                            <div class="p-4">
-                                <div class="flex justify-between items-start gap-2 mb-2">
-                                    <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.nombre}</h3>
-                                    <span class="whitespace-nowrap px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${badgeColor}">
-                                        ${badgeTexto}
-                                    </span>
-                                </div>
-                                <p class="text-sm text-gray-600">${infoVisual.descripcion}</p>
+                <div class="bg-white rounded-2xl shadow-md border-2 ${colorBorde} overflow-hidden flex flex-col justify-between transition-all transform active:scale-98">
+                    <div>
+                        <!-- La imagen ahora apunta a la ruta dinámica del servidor o Firebase -->
+                        <img src="${rutaImagen}" alt="${item.nombre}" class="w-full h-40 object-cover ${filtroImagen}">
+                        
+                        <div class="p-4">
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <h3 class="text-xl font-bold text-gray-800 leading-tight">${item.nombre}</h3>
+                                <span class="whitespace-nowrap px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${badgeColor}">
+                                    ${badgeTexto}
+                                </span>
                             </div>
-                        </div>
-
-                        <div class="p-4 pt-0">
-                            <button 
-                                onclick="irAlCalendario('${idCategoria}', '${idRecurso}')"
-                                ${!tieneStock ? 'disabled' : ''} 
-                                class="w-full py-3 px-4 rounded-xl font-bold text-center transition-all text-base shadow-sm
-                                ${tieneStock 
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800' 
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
-                            >
-                                ${tieneStock ? '📅 Reservar este recurso' : '❌ No disponible'}
-                            </button>
+                            <!-- La descripción ahora es dinámica -->
+                            <p class="text-sm text-gray-600">${textoDescripcion}</p>
                         </div>
                     </div>
+                    
+                    <div class="p-4 pt-0">
+                        <button
+                            onclick="irAlCalendario('${idCategoria}', '${idRecurso}', '${item.nombre}')"
+                            ${!tieneStock ? 'disabled' : ''}
+                            class="w-full py-3 px-4 rounded-xl font-bold text-center transition-all text-base shadow-sm
+                            ${tieneStock
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
+                        >
+                            ${tieneStock ? 'Reservar este recurso' : 'No disponible'}
+                        </button>
+                    </div>
+                </div>
                 `;
-
-                // Inyectar en la grilla visual de la página
+                
+                // Inyectar en la grilla visual
                 tarjeteroRecursos.insertAdjacentHTML('beforeend', fichaHTML);
             });
         });
     });
 }
-
 // 4. DIRECCIONAMIENTO AL PASO DEL CALENDARIO
-window.irAlCalendario = function(categoria, recursoId) {
-    // Redirige pasando los identificadores por la URL para que calendario.html sepa qué se quiere reservar
-    window.location.href = `calendario.html?cat=${categoria}&id=${recursoId}`;
+window.irAlCalendario = function (categoria, recursoId, nombreReal) {
+    // Le pasamos la categoría, el ID y el nombre limpio por URL
+    window.location.href = `calendario.html?cat=${categoria}&id=${recursoId}&equipo=${encodeURIComponent(nombreReal)}`;
 };
-
 // 5. FUNCIÓN DE SALIDA
 function desconectarSesion() {
     signOut(auth).then(() => {

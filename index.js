@@ -30,11 +30,12 @@ function mostrarError(mensaje) {
 }
 
 // EVENTO DE INICIO DE SESIÓN
-btnLogin.addEventListener('click', () => {
+btnLogin.addEventListener('click', (e) => {
+    e.preventDefault(); // Evita que la página intente recargarse sola al hacer clic
+    
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     
-    // signInWithPopup abre la ventana, el usuario elige su cuenta y la respuesta vuelve ACÁ mismo
     signInWithPopup(auth, provider)
         .then((result) => {
             const email = result.user.email;
@@ -42,15 +43,14 @@ btnLogin.addEventListener('click', () => {
             const esColegio = email.endsWith("@colegio.edu");
 
             if (esAdmin || esColegio) {
-                // Redirección limpia a la pantalla de equipos
-                window.location.href = "equipos.html";
+                // Forzamos el reemplazo de locación para romper hilos colgados
+                window.location.replace("equipos.html"); 
             } else {
-                mostrarError("Acceso denegado. Dominio no autorizado.");
+                alert("Acceso denegado.");
                 signOut(auth);
             }
         })
         .catch((error) => {
-            console.error("Error en el login:", error);
-            mostrarError("Error al iniciar sesión: " + error.message);
+            console.error("Error detallado:", error);
         });
 });

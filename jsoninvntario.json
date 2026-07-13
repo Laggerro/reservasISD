@@ -1,0 +1,46 @@
+{
+  "inventario": {
+    "tecnologia": {
+      "notebook_01": {
+        "nombre": "Notebook del Carrito (Nº 3)",
+        "stock_total": 15,
+        "descripcion": "Notebooks educativas para trabajo en el aula. Incluyen cargador y mouse óptico.",
+        "imagen": "img/notebook.jpg"
+      },
+      "impresora_3d": {
+        "nombre": "Impresora 3D Magna 1",
+        "stock_total": 1,
+        "descripcion": "Impresora 3D para proyectos de robótica y diseño. Reservar con archivo listo.",
+        "imagen": "img/impresora3d.jpg"
+      }
+    },
+    "audiovisual": {
+      "proyector_hdmi": {
+        "nombre": "Proyector Epson HDMI",
+        "stock_total": 4,
+        "descripcion": "Proyector de alta definición con cable HDMI y control remoto para el aula.",
+        "imagen": "img/proyector.jpg"
+      },
+      "parlante_bluetooth": {
+        "nombre": "Equipo de Audio Portátil",
+        "stock_total": 2,
+        "descripcion": "Parlante activo con micrófono inalámbrico, ideal para actos o clases de idiomas.",
+        "imagen": "img/parlante.jpg"
+      }
+    },
+    "didacticos": {
+      "kit_robotica": {
+        "nombre": "Kit de Robótica Lego EV3",
+        "stock_total": 5,
+        "descripcion": "Sets de construcción y programación para las clases de tecnología.",
+        "imagen": "img/robotica.jpg"
+      },
+      "mapas_historia": {
+        "nombre": "Set de Mapas Históricos",
+        "stock_total": 3,
+        "descripcion": "Mapas enrollables de geografía e historia política universal.",
+        "imagen": "img/mapas.jpg"
+      }
+    }
+  }
+}
