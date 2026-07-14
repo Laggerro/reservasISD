@@ -1,4 +1,14 @@
 {
+  "administradores": {
+    "laggerro2_gmail_com": {
+      "email": "laggerro2@gmail.com",
+      "nombre": "Administrador Principal"
+    },
+    "auxiliar_colegio_edu": {
+      "email": "auxiliar@colegio.edu",
+      "nombre": "Auxiliar Turno Mañana"
+    }
+  },
   "inventario": {
     "tecnologia": {
       "notebook_01": {
@@ -42,9 +52,5 @@
         "imagen": "img/mapas.jpg"
       }
     }
-
-
-  
-
-}
+  }
 }

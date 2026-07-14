@@ -3,7 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 // CAMBIO CLAVE: Importamos las funciones para Realtime Database (RTDB)
-import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // 1. CONFIGURACIÓN DE FIREBASE (Reemplazá con tus credenciales)
 const firebaseConfig = {
@@ -66,25 +66,28 @@ function inicializarCalendario() {
         },
         buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana' },
 
-        // LEER RESERVAS DE ESTE EQUIPO DESDE RTDB
+ // LEER RESERVAS DE ESTE EQUIPO DESDE RTDB
         events: async function(fetchInfo, successCallback, failureCallback) {
             try {
                 const dbRef = ref(db);
-                // Buscamos en el nodo "reservas" de tu RTDB
                 const snapshot = await get(child(dbRef, 'reservas'));
                 const eventos = [];
                 
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
-                        // Filtramos en caliente para mostrar solo las de este equipo
                         if (data.equipo === equipoSeleccionado) {
                             eventos.push({
                                 id: childSnapshot.key,
                                 title: data.title || "Reservado",
                                 start: data.start, 
                                 end: data.end,
-                                color: data.color || '#3182ce'
+                                color: data.color || '#3182ce',
+                                extendedProps: {
+                                    usuarioEmail: data.usuarioEmail,
+                                    // --- GUARDAMOS EL TIMESTAMP EN EL EVENTO ---
+                                    timestampCreacion: data.timestampCreacion || null 
+                                }
                             });
                         }
                     });
@@ -95,22 +98,93 @@ function inicializarCalendario() {
                 failureCallback(error);
             }
         },
-
         // CONTROLAR EL CLIC EN UN DÍA
-        dateClick: function(info) {
+    dateClick: function(info) {
+            // OBTENER FECHAS EN FORMATO SOLO DÍA (Sin horas)
+            const hoyLocal = new Date();
+            hoyLocal.setHours(0,0,0,0); // Seteamos a la medianoche de hoy
+
+            const fechaClickeada = new Date(info.dateStr + "T00:00:00");
+
+            // VALIDACIÓN: Si la fecha seleccionada es menor a hoy, bloqueamos
+            if (fechaClickeada < hoyLocal) {
+                alert("❌ No podés agendar reservas en fechas anteriores al día de hoy.");
+                return; // Frena la apertura del modal
+            }
+
             fechaSeleccionada = info.dateStr; 
             
             const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const fechaFormateada = new Date(info.dateStr + "T00:00:00").toLocaleDateString('es-ES', opciones);
+            const fechaFormateada = fechaClickeada.toLocaleDateString('es-ES', opciones);
             
             modalFechaTexto.textContent = `Día: ${fechaFormateada}`;
             formReserva.reset(); 
             modal.classList.remove('hidden'); 
         },
 
-        eventClick: function(info) {
-            alert(`Reserva: ${info.event.title}\nHorario: ${info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
+     
+eventClick: async function(info) {
+            const usuarioActual = auth.currentUser;
+            const creadorReserva = info.event.extendedProps.usuarioEmail;
+            const timestamp = info.event.extendedProps.timestampCreacion;
+
+            // Formatear el Timestamp para mostrarlo de forma legible
+            let fechaCreacionTexto = "No registrada";
+            if (timestamp) {
+                const fechaCrea = new Date(timestamp);
+                fechaCreacionTexto = fechaCrea.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) + " hs";
+            }
+
+            // Mensaje de información detallado
+            const horarioFormateado = info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            alert(`📌 Detalle de la Reserva:\n\n` +
+                  `• Recurso: ${info.event.title}\n` +
+                  `• Horario: ${horarioFormateado} hs\n` +
+                  `• Reservado por: ${creadorReserva}\n` +
+                  `• Registrado el: ${fechaCreacionTexto}`);
+
+            // 1. CONTROL DE IDENTIDAD: ¿Es el dueño de la reserva?
+            if (!usuarioActual || usuarioActual.email !== creadorReserva) {
+                return; // Corta acá para que profesores ajenos solo puedan LEER la info sin borrarla
+            }
+
+            // 2. CONTROL DE TIEMPO: "Hasta un día antes"
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+
+            const fechaReserva = new Date(info.event.start);
+            fechaReserva.setHours(0,0,0,0);
+
+            if (fechaReserva <= hoy) {
+                alert("❌ Solo podés cancelar reservas hasta un día antes de la fecha pactada. Por favor, comunicate con el auxiliar.");
+                return;
+            }
+
+            // 3. CONFIRMACIÓN Y ELIMINACIÓN REAL
+            const confirmar = confirm(`¿Estás seguro de que querés cancelar tu reserva de "${info.event.title}"?`);
+            if (confirmar) {
+                try {
+                    const idReserva = info.event.id;
+                    const reservaRef = ref(db, `reservas/${idReserva}`);
+                    
+                    await remove(reservaRef);
+                    
+                    info.event.remove(); 
+                    alert("✅ Reserva cancelada y eliminada con éxito.");
+                } catch (error) {
+                    console.error("Error al eliminar:", error);
+                    alert("Ocurrió un error al intentar eliminar la reserva.");
+                }
+            }
         }
+
+
     });
 
     calendar.render();
@@ -129,14 +203,23 @@ btnVolver.addEventListener('click', () => {
 
 // REGISTRAR LA NUEVA RESERVA CON VALIDACIÓN DE DUPLICADOS
 formReserva.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+  e.preventDefault();  
     const periodoSelect = document.getElementById('periodo');
     const [horaInicio, horaFin] = periodoSelect.value.split('-'); 
     const usuarioActual = auth.currentUser;
-
     const inicioIso = `${fechaSeleccionada}T${horaInicio}:00`;
     const finIso = `${fechaSeleccionada}T${horaFin}:00`;
+
+    // =======================================================
+    // NUEVA VALIDACIÓN: BLOQUEAR HORARIOS QUE YA PASARON HOY
+    // =======================================================
+    const ahora = new Date();
+    const inicioReservaDateTime = new Date(inicioIso);
+
+    if (inicioReservaDateTime < ahora) {
+        alert("❌ No podés reservar un módulo horario que ya comenzó o que ya pasó.");
+        return; // Frena la creación
+    }
 
     try {
         const dbRef = ref(db);
@@ -196,29 +279,32 @@ formReserva.addEventListener('submit', async (e) => {
 // ==========================================
         // PASO 4: GUARDAR LA RESERVA SI PASÓ EL CONTROL
         // ==========================================
-        const nuevaReserva = {
+const nuevaReserva = {
             equipo: equipoSeleccionado,
             usuarioEmail: usuarioActual ? usuarioActual.email : "anonimo@colegio.edu",
             usuarioNombre: usuarioActual ? usuarioActual.displayName : "Profesor",
-            // Corregido el string literal sin caracteres raros al final
             title: `${equipoSeleccionado} (Unidad ${reservasEnEseHorario + 1}) - ${usuarioActual ? usuarioActual.displayName.split(' ')[0] : 'Prof'}`,
             start: inicioIso,
             end: finIso,
-            color: '#10b981'
+            color: '#10b981',
+            // Agregamos el Timestamp del servidor de Firebase (o local con Date.now())
+            timestampCreacion: Date.now() 
         };
 
         // Guardamos en la RTDB
         await push(ref(db, 'reservas'), nuevaReserva);
         
-        modal.classList.add('hidden'); 
+        modal.classList.add('hidden');
         calendar.refetchEvents(); // Redibuja el calendario al instante
         alert("¡Reserva confirmada con éxito!");
-        
+
     } catch (error) {
         console.error("Error general en la validación por stock:", error);
         alert("Ocurrió un problema al verificar la disponibilidad de la base de datos.");
     }
 });
+
+
 btnLogout.addEventListener('click', () => {
     signOut(auth).then(() => {
         window.location.href = "index.html";

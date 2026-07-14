@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - ISD</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    
+    <nav class="bg-blue-800 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold"><i class="fa-solid fa-gears mr-2"></i>Ajustes del Sistema</h1>
+        <button id="btn-volver" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold transition">
+            ← Volver a Equipos
+        </button>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="max-w-7xl mx-auto my-8 p-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- SECCIÓN DE EQUIPOS (INVENTARIO) -->
+        <section class="space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i>Nuevo Recurso
+                </h2>
+                
+                <form id="form-nuevo-recurso" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Categoría:</label>
+                        <select id="recurso-categoria" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" required>
+                            <option value="" disabled selected>Elegí categoría...</option>
+                            <option value="tecnologia">Tecnología (Notebooks, Impresoras 3D)</option>
+                            <option value="audiovisual">Audiovisual (Proyectores, Audio)</option>
+                            <option value="didacticos">Didácticos (Robótica, Mapas)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Nombre del Recurso:</label>
+                        <input type="text" id="recurso-nombre" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: Proyector Epson HDMI" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Cantidad (Stock):</label>
+                        <input type="number" id="recurso-cantidad" min="1" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: 4" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Descripción:</label>
+                        <textarea id="recurso-descripcion" rows="3" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Breve explicación de uso o accesorios que incluye..."></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Imagen (Foto del Recurso):</label>
+                        <input type="file" id="recurso-imagen" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
+                        Guardar en Inventario
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-list text-blue-600 mr-1"></i>Equipos Registrados
+                </h2>
+                <div id="lista-inventario" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                    <p class="text-center text-gray-500 py-4">Cargando inventario...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE ADMINISTRADORES / AUXILIARES (NUEVA) -->
+        <section class="space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-user-shield text-indigo-600 mr-1"></i>Agregar Administrador / Auxiliar
+                </h2>
+                
+                <form id="form-nuevo-admin">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Nombre Completo:</label>
+                        <input type="text" id="admin-nombre" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: Juan Pérez" required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Correo Electrónico:</label>
+                        <input type="email" id="admin-email" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: auxiliar@colegio.edu o Gmail personal" required>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
+                        Dar Permisos de Admin
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-users-gear text-indigo-600 mr-1"></i>Lista de Administradores
+                </h2>
+                <div id="lista-administradores" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                    <p class="text-center text-gray-500 py-4">Cargando administradores...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="app-ajustes.js"></script>
+</body>
+</html>

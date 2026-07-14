@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // 1. Configuración de Firebase (Reemplazá con tus credenciales reales)
 const firebaseConfig = {
@@ -28,32 +28,39 @@ const tarjeteroRecursos = document.getElementById('tarjetero-recursos');
 
 
 
-// 2. GUARDIÁN DE SESIÓN ESTRICTO
-onAuthStateChanged(auth, (user) => {
+// 2. GUARDIÁN DE SESIÓN ESTRICTO DINÁMICO
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         const email = user.email;
-        // Excepción explícita del administrador o dominios del colegio
+        
+        // Verificamos si es tu cuenta administradora principal o del colegio
         if (email === 'laggerro2@gmail.com' || email.endsWith('@colegio.edu')) {
-            
-            // Mostrar nombre en barra de navegación
             nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Profesor'}`;
-            
-            // Mostrar botón de ajustes si es el administrador principal
-            if (email === 'laggerro2@gmail.com') {
-                botonAjustes.classList.remove('hidden');
-            }
-
-            // Quitar invisible del body (evita el parpadeo visual)
             appBody.classList.remove('invisible');
             
-            // Cargar los datos desde la rama 'inventario'
+            // EXCEPCIÓN DIRECTA: Si sos vos, te muestra el botón de inmediato
+            if (email === 'laggerro2@gmail.com') {
+                botonAjustes.classList.remove('hidden');
+            } else {
+                // Si es un correo institucional (@colegio.edu), verificamos en la RTDB si es admin
+                try {
+                    const emailLimpio = email.replace(/\./g, '_');
+                    const dbRef = ref(db);
+                    const snapshotAdmin = await get(child(dbRef, `administradores/${emailLimpio}`));
+                    
+                    if (snapshotAdmin.exists()) {
+                        botonAjustes.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error("Error comprobando rol de administrador:", error);
+                }
+            }
+            
             escucharInventario();
         } else {
-            // Si está logueado pero con una cuenta de Gmail común externa
             desconectarSesion();
         }
     } else {
-        // Redirigir si no está logueado
         window.location.href = "index.html";
     }
 });
