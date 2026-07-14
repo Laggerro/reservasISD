@@ -29,41 +29,56 @@ const tarjeteroRecursos = document.getElementById('tarjetero-recursos');
 
 
 // 2. GUARDIÁN DE SESIÓN ESTRICTO DINÁMICO
+// GUARDIÁN DE SESIÓN CON LISTA BLANCA ESTRICTA
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const email = user.email;
         
-        // Verificamos si es tu cuenta administradora principal o del colegio
-        if (email === 'laggerro2@gmail.com' || email.endsWith('@colegio.edu')) {
-            nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Profesor'}`;
+        // 1. EXCEPCIÓN DIRECTA: Tu mail personal siempre entra de una (llave maestra)
+        if (email === 'laggerro2@gmail.com') {
+            nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Administrador'}`;
+            botonAjustes.classList.remove('hidden'); // Te muestra el botón de ajustes
             appBody.classList.remove('invisible');
-            
-            // EXCEPCIÓN DIRECTA: Si sos vos, te muestra el botón de inmediato
-            if (email === 'laggerro2@gmail.com') {
-                botonAjustes.classList.remove('hidden');
-            } else {
-                // Si es un correo institucional (@colegio.edu), verificamos en la RTDB si es admin
-                try {
-                    const emailLimpio = email.replace(/\./g, '_');
-                    const dbRef = ref(db);
-                    const snapshotAdmin = await get(child(dbRef, `administradores/${emailLimpio}`));
-                    
-                    if (snapshotAdmin.exists()) {
-                        botonAjustes.classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error("Error comprobando rol de administrador:", error);
-                }
-            }
-            
             escucharInventario();
-        } else {
+            return;
+        }
+
+        // 2. Para todos los demás (profesores y auxiliares), verificamos en la lista de AUTORIZADOS
+        try {
+            const emailLimpio = email.replace(/\./g, '_');
+            const dbRef = ref(db);
+            
+            // Buscamos si existe en el nodo "usuarios_autorizados"
+            const snapshotAutorizado = await get(child(dbRef, `usuarios_autorizados/${emailLimpio}`));
+            
+            if (snapshotAutorizado.exists()) {
+                // Sí está autorizado. Ahora verificamos si además es ADMINISTRADOR (para mostrar o no el botón de ajustes)
+                nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Profesor'}`;
+                appBody.classList.remove('invisible');
+                
+                const snapshotAdmin = await get(child(dbRef, `administradores/${emailLimpio}`));
+                if (snapshotAdmin.exists()) {
+                    botonAjustes.classList.remove('hidden'); // Es admin (ej: auxiliar), le mostramos Ajustes
+                } else {
+                    botonAjustes.classList.add('hidden'); // Es docente común, NO ve Ajustes
+                }
+
+                escucharInventario();
+            } else {
+                // NO está autorizado (alumno o mail no registrado)
+                alert("Acceso denegado. Tu cuenta no está autorizada para ingresar al sistema. Por favor, solicita acceso al Administrador.");
+                desconectarSesion();
+            }
+        } catch (error) {
+            console.error("Error comprobando permisos:", error);
             desconectarSesion();
         }
     } else {
         window.location.href = "index.html";
     }
 });
+
+
 
 // 3. LECTURA EN TIEMPO REAL DEL INVENTARIO (Estructura jerárquica)
 function escucharInventario() {
@@ -151,6 +166,10 @@ function desconectarSesion() {
         console.error("Error al salir: ", error);
     });
 }
+
+
+
+
 
 // Vincular botón de logout del NAV
 btnLogout.addEventListener('click', desconectarSesion);

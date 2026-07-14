@@ -58,10 +58,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-function inicializarPanel() {
-    escucharYListarEquipos();
-    escucharYListarAdmins(); // <--- Encendemos el nuevo módulo
-}
 
 // ==========================================
 // MÓDULO A: CONTROL DE INVENTARIO (EQUIPOS)
@@ -263,3 +259,107 @@ window.eliminarAdmin = async function(emailLimpio, nombreAdmin) {
 btnVolver.addEventListener('click', () => {
     window.location.href = "equipos.html";
 });
+
+// NUEVOS ELEMENTOS DEL DOM PARA PROFESORES
+const formNuevoProfesor = document.getElementById('form-nuevo-profesor');
+const listaProfesores = document.getElementById('lista-profesores');
+
+// Modificamos la función inicializadora para cargar también a los profesores
+function inicializarPanel() {
+    escucharYListarEquipos();
+    escucharYListarAdmins();
+    escucharYListarProfesores(); // <--- Nueva función encendida
+}
+
+// ==========================================
+// MÓDULO C: CONTROL DE PROFESORES (LISTA BLANCA)
+// ==========================================
+
+// REGISTRAR PROFESOR EN LA LISTA BLANCA
+formNuevoProfesor.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById('profe-nombre').value.trim();
+    const email = document.getElementById('profe-email').value.trim().toLowerCase();
+    const emailLimpio = email.replace(/\./g, '_');
+
+    try {
+        const profeRef = ref(db, `usuarios_autorizados/${emailLimpio}`);
+        
+        await set(profeRef, {
+            nombre: nombre,
+            email: email
+        });
+
+        alert(`✅ El docente ${nombre} ha sido agregado a la lista autorizada.`);
+        formNuevoProfesor.reset();
+        
+    } catch (error) {
+        console.error("Error al registrar profesor:", error);
+        alert("Ocurrió un error al guardar el docente.");
+    }
+});
+
+// ESCUCHAR Y LISTAR PROFESORES
+function escucharYListarProfesores() {
+    const profesoresRef = ref(db, 'usuarios_autorizados');
+
+    onValue(profesoresRef, (snapshot) => {
+        listaProfesores.innerHTML = '';
+        const profesores = snapshot.val();
+
+        if (!profesores) {
+            listaProfesores.innerHTML = '<p class="text-center text-gray-400 py-4">No hay docentes autorizados en la lista.</p>';
+            return;
+        }
+
+        Object.keys(profesores).forEach(key => {
+            const profe = profesores[key];
+            const esPropietario = profe.email === "laggerro2@gmail.com";
+
+            const botonBorrar = esPropietario 
+                ? `<span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full font-semibold">Dueño</span>`
+                : `<button onclick="eliminarProfesor('${key}', '${profe.nombre}')" class="text-red-500 hover:text-red-700 p-2 transition">
+                      <i class="fa-solid fa-user-slash"></i>
+                   </button>`;
+
+            const itemHTML = `
+                <div class="flex items-center justify-between p-3 bg-gray-50 border rounded-xl hover:shadow-sm transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-700">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm leading-tight">${profe.nombre}</h4>
+                            <p class="text-xs text-gray-500 font-medium">${profe.email}</p>
+                        </div>
+                    </div>
+                    ${botonBorrar}
+                </div>
+            `;
+            listaProfesores.insertAdjacentHTML('beforeend', itemHTML);
+        });
+    });
+}
+
+// QUITAR PROFESOR DE LA LISTA BLANCA
+window.eliminarProfesor = async function(emailLimpio, nombreProfe) {
+    const confirmar = confirm(`¿Estás seguro de que querés REVOCAR el acceso a "${nombreProfe}"?\nSi lo hacés, perderá la capacidad de iniciar sesión de forma inmediata.`);
+    
+    if (confirmar) {
+        try {
+            // 1. Lo borramos de la lista blanca general
+            const profeRef = ref(db, `usuarios_autorizados/${emailLimpio}`);
+            await remove(profeRef);
+
+            // 2. Por seguridad, si además era Administrador, también le quitamos el rol
+            const adminRef = ref(db, `administradores/${emailLimpio}`);
+            await remove(adminRef);
+
+            alert(`Acceso revocado con éxito para ${nombreProfe}.`);
+        } catch (error) {
+            console.error("Error al revocar acceso:", error);
+            alert("No se pudo completar la operación.");
+        }
+    }
+};
