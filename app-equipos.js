@@ -119,8 +119,10 @@ function escucharInventario() {
                 const fichaHTML = `
                 <div class="bg-white rounded-2xl shadow-md border-2 ${colorBorde} overflow-hidden flex flex-col justify-between transition-all transform active:scale-98">
                     <div>
-                        <!-- La imagen ahora apunta a la ruta dinámica del servidor o Firebase -->
-                        <img src="${rutaImagen}" alt="${item.nombre}" class="w-full h-40 object-cover ${filtroImagen}">
+                        <!-- CONTENEDOR DE IMAGEN CORREGIDO: Evita que la foto se escape y la centra con un fondo sutil -->
+                        <div class="w-full h-48 bg-gray-50 border-b flex items-center justify-center p-2 overflow-hidden">
+                            <img src="${rutaImagen}" alt="${item.nombre}" class="max-w-full max-h-full object-contain ${filtroImagen}">
+                        </div>
                         
                         <div class="p-4">
                             <div class="flex justify-between items-start gap-2 mb-2">
@@ -140,8 +142,8 @@ function escucharInventario() {
                             ${!tieneStock ? 'disabled' : ''}
                             class="w-full py-3 px-4 rounded-xl font-bold text-center transition-all text-base shadow-sm
                             ${tieneStock
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
                         >
                             ${tieneStock ? 'Reservar este recurso' : 'No disponible'}
                         </button>
@@ -155,6 +157,8 @@ function escucharInventario() {
         });
     });
 }
+
+
 // 4. DIRECCIONAMIENTO AL PASO DEL CALENDARIO
 window.irAlCalendario = function (categoria, recursoId, nombreReal) {
     // Le pasamos la categoría, el ID y el nombre limpio por URL
