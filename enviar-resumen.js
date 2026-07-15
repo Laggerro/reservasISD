@@ -18,18 +18,18 @@ const db = admin.database();
 async function generarYEnviarReporte() {
   // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires)
   const fechaHoy = new Date().toLocaleDateString("es-AR", {
-    timeZone: "America/Argentina/Buenos Aires",
+    timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
   }).split('/').reverse().join('-'); // Convierte DD/MM/AAAA a AAAA-MM-DD
 
   const reservasRef = db.ref('reservas');
-  
+
   try {
     const snapshot = await reservasRef.once('value');
     const reservas = snapshot.val();
-    
+
     let tablaFilas = '';
     let hayReservas = false;
 
