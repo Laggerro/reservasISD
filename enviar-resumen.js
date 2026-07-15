@@ -42,7 +42,7 @@ async function obtenerDestinatariosReporte() {
 }
 
 async function generarYEnviarReporte() {
-  // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires) - CORREGIDO CON "_"
+  // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires) -> "AAAA-MM-DD"
   const fechaHoy = new Date().toLocaleDateString("es-AR", {
     timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
@@ -68,17 +68,31 @@ async function generarYEnviarReporte() {
     let tablaFilas = '';
     let hayReservas = false;
 
+    console.log(`📅 Buscando reservas para la fecha de hoy: "${fechaHoy}"`);
+
     if (reservas) {
       Object.keys(reservas).forEach(id => {
         const r = reservas[id];
-        if (r.fecha === fechaHoy) {
-          tablaFilas += `
-            <tr>
-              <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.docenteNombre || 'Sin nombre'}</td>
-              <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.recursoNombre || 'Sin recurso'}</td>
-              <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.modulo || 'No especificado'}</td>
-            </tr>`;
-          hayReservas = true;
+        
+        // El campo "start" contiene la fecha y hora: "AAAA-MM-DDTHH:MM:SS"
+        if (r.start) {
+          // Extraemos solo la fecha (los primeros 10 caracteres: "AAAA-MM-DD")
+          const fechaReserva = r.start.substring(0, 10);
+          
+          if (fechaReserva === fechaHoy) {
+            // Extraemos las horas de inicio y fin para armar el rango de tiempo (módulo)
+            const horaInicio = r.start.substring(11, 16); // "HH:MM"
+            const horaFin = r.end ? r.end.substring(11, 16) : 'No especificada';
+            const horario = `${horaInicio} a ${horaFin} hs`;
+
+            tablaFilas += `
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.usuarioNombre || 'Sin nombre'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.equipo || 'Sin recurso'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${horario}</td>
+              </tr>`;
+            hayReservas = true;
+          }
         }
       });
     }
@@ -92,8 +106,8 @@ async function generarYEnviarReporte() {
           <thead>
             <tr style="background-color: #f2f2f2;">
               <th style="padding: 8px; border-bottom: 2px solid #ddd;">Docente</th>
-              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Recurso</th>
-              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Módulo</th>
+              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Recurso / Equipo</th>
+              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Horario</th>
             </tr>
           </thead>
           <tbody>
@@ -110,9 +124,9 @@ async function generarYEnviarReporte() {
 
     console.log(`📧 Enviando reporte diario a: ${destinatarios.join(', ')}`);
 
-    // 3. Enviar el correo usando Resend (acepta un Array de correos)
+    // 3. Enviar el correo usando Resend
     await resend.emails.send({
-      from: 'Sistema ISD <onboarding@resend.dev>', // Remitente gratuito por defecto de Resend
+      from: 'Sistema ISD <onboarding@resend.dev>',
       to: destinatarios, 
       subject: `☀️ Reservas del Día - ${fechaHoy}`,
       html: contenidoHtml
