@@ -1,33 +1,36 @@
-name: Enviar Reporte de Reservas Diario
+name: Enviar Reporte Diario de Reservas
 
 on:
-  # 1. Permite ejecutarlo manualmente desde la web de GitHub
-  workflow_dispatch:
-
-  # 2. Se ejecuta a las 10:30 UTC todos los días (Equivale a las 07:30 AM en Argentina)
   schedule:
-    - cron: '30 10 * * *'
+    # Corre automáticamente de lunes a viernes a las 07:00 AM hora de Argentina (10:00 UTC)
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch: # Permite ejecutar el flujo manualmente desde la pestaña Actions
 
 jobs:
   enviar-reporte:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Descargar Código
+      # 1. Descargar el código del repositorio
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      # 2. Configurar el entorno de Node.js (Forzando la versión recomendada)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-size: 20
 
-      - name: Instalar dependencias
+      # 3. Instalar las dependencias de Firebase Admin y Nodemailer
+      - name: Install dependencies
         run: |
-          npm init -y
-          npm install firebase-admin resend
+          npm install firebase-admin nodemailer
 
-      - name: Ejecutar script
+      # 4. Ejecutar el script cargando de forma segura las variables de entorno
+      - name: Run script
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
           EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
         run: node enviar-resumen.js

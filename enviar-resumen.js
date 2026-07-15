@@ -1,11 +1,8 @@
 // enviar-resumen.js
 const admin = require('firebase-admin');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer'); // Reemplazamos Resend por Nodemailer
 
-// Inicializamos Resend con la clave que guardaremos segura en GitHub
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Inicializamos Firebase con las credenciales que guardaremos seguras en GitHub
+// Inicializamos Firebase con las credenciales seguras de GitHub
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
@@ -15,39 +12,39 @@ admin.initializeApp({
 
 const db = admin.database();
 
+// Configuración del transporte SMTP con tu cuenta de Google
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER, // Tu correo de origen (ej: tu-cuenta@institutosandiego.edu.ar)
+    pass: process.env.SMTP_PASS  // La contraseña de aplicación de 16 letras que generaste en Google
+  }
+});
+
 // Función para obtener la lista de correos que tienen "recibe_reporte: true" en Firebase
 async function obtenerDestinatariosReporte() {
   const ref = db.ref('usuarios_autorizados');
   const snapshot = await ref.once('value');
-  
   const correos = [];
 
-  // Agregamos el correo de respaldo configurado en tus Secrets de GitHub
   if (process.env.EMAIL_DESTINATARIO) {
     correos.push(process.env.EMAIL_DESTINATARIO.trim().toLowerCase());
   }
 
-  // Recorremos los usuarios en Firebase buscando los que tengan "recibe_reporte: true"
   if (snapshot.exists()) {
     snapshot.forEach((childSnapshot) => {
       const usuario = childSnapshot.val();
-      // Validamos explícitamente que sea true (booleano)
       if (usuario.recibe_reporte === true && usuario.email) {
         correos.push(usuario.email.trim().toLowerCase());
       }
     });
   }
 
-  // Quitamos correos duplicados por seguridad
-  const destinatariosUnicos = [...new Set(correos)];
-  console.log(`📋 Destinatarios encontrados en Firebase: [${destinatariosUnicos.join(', ')}]`);
-  return destinatariosUnicos;
+  return [...new Set(correos)];
 }
 
-// Función para formatear la fecha de hoy de forma 100% segura en huso horario de Argentina (GMT-3)
 function obtenerFechaArgentina() {
   const d = new Date();
-  // Forzamos el desvío horario manual a GMT-3 para evitar problemas de servidor
   const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
   const argDate = new Date(utc + (3600000 * -3));
 
@@ -63,7 +60,6 @@ async function generarYEnviarReporte() {
   const reservasRef = db.ref('reservas');
   
   try {
-    // 1. Buscamos los destinatarios dinámicos
     const destinatarios = await obtenerDestinatariosReporte();
 
     if (destinatarios.length === 0) {
@@ -71,7 +67,6 @@ async function generarYEnviarReporte() {
       process.exit(0);
     }
 
-    // 2. Buscamos las reservas
     const snapshot = await reservasRef.once('value');
     const reservas = snapshot.val();
     
@@ -83,14 +78,10 @@ async function generarYEnviarReporte() {
     if (reservas) {
       Object.keys(reservas).forEach(id => {
         const r = reservas[id];
-        
-        // El campo "start" contiene la fecha y hora: "AAAA-MM-DDTHH:MM:SS"
         if (r.start) {
-          // Extraemos solo la fecha (los primeros 10 caracteres: "AAAA-MM-DD")
           const fechaReserva = r.start.substring(0, 10);
-          
           if (fechaReserva === fechaHoy) {
-            const horaInicio = r.start.substring(11, 16); // "HH:MM"
+            const horaInicio = r.start.substring(11, 16);
             const horaFin = r.end ? r.end.substring(11, 16) : 'No especificada';
             const horario = `${horaInicio} a ${horaFin} hs`;
 
@@ -133,18 +124,17 @@ async function generarYEnviarReporte() {
 
     console.log(`📧 Intentando enviar reporte diario a: [${destinatarios.join(', ')}]`);
 
-    // 3. Enviar el correo usando Resend
-    const response = await resend.emails.send({
-      from: 'Sistema ISD <onboarding@resend.dev>',
-      to: destinatarios, 
+    // 3. Enviar el correo usando Nodemailer (SMTP directo de Google)
+    const info = await transporter.sendMail({
+      from: `"Reservas ISD" <${process.env.SMTP_USER}>`, 
+      to: destinatarios.join(', '), // Nodemailer acepta los correos separados por comas en un solo string
       subject: `☀️ Reservas del Día - ${fechaHoy}`,
       html: contenidoHtml
     });
 
-    console.log("✅ Respuesta de Resend:", response);
-    console.log("✅ Reporte diario procesado con éxito.");
+    console.log("✅ Reporte enviado con éxito. ID del mensaje:", info.messageId);
   } catch (error) {
-    console.error("❌ Error al procesar el reporte diario:", error);
+    console.error("❌ Error al procesar o enviar el reporte diario:", error);
   }
   process.exit(0);
 }
