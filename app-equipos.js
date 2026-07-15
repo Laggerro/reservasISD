@@ -4,13 +4,13 @@ import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/f
 
 // 1. Configuración de Firebase (Reemplazá con tus credenciales reales)
 const firebaseConfig = {
-  apiKey: "AIzaSyBOgShBOu05UszCBLS-bpTl2f3AI7_I-pY",
-  authDomain: "reservasisd.firebaseapp.com",
-  databaseURL: "https://reservasisd-default-rtdb.firebaseio.com",
-  projectId: "reservasisd",
-  storageBucket: "reservasisd.firebasestorage.app",
-  messagingSenderId: "637702189208",
-  appId: "1:637702189208:web:49ff477b35e299564ca0ed"
+    apiKey: "AIzaSyBOgShBOu05UszCBLS-bpTl2f3AI7_I-pY",
+    authDomain: "reservasisd.firebaseapp.com",
+    databaseURL: "https://reservasisd-default-rtdb.firebaseio.com",
+    projectId: "reservasisd",
+    storageBucket: "reservasisd.firebasestorage.app",
+    messagingSenderId: "637702189208",
+    appId: "1:637702189208:web:49ff477b35e299564ca0ed"
 };
 
 // Inicializar Firebase
@@ -33,7 +33,7 @@ const tarjeteroRecursos = document.getElementById('tarjetero-recursos');
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const email = user.email;
-        
+
         // 1. EXCEPCIÓN DIRECTA: Tu mail personal siempre entra de una (llave maestra)
         if (email === 'laggerro2@gmail.com') {
             nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Administrador'}`;
@@ -45,17 +45,19 @@ onAuthStateChanged(auth, async (user) => {
 
         // 2. Para todos los demás (profesores y auxiliares), verificamos en la lista de AUTORIZADOS
         try {
-            const emailLimpio = email.replace(/\./g, '_');
+            // const emailLimpio = email.replace(/\./g, '_');
+            const emailLimpio = email.trim().toLowerCase().replace(/\./g, '_');
+            console.log("🔍 Intentando ingresar con el nodo:", emailLimpio);
             const dbRef = ref(db);
-            
+
             // Buscamos si existe en el nodo "usuarios_autorizados"
             const snapshotAutorizado = await get(child(dbRef, `usuarios_autorizados/${emailLimpio}`));
-            
+
             if (snapshotAutorizado.exists()) {
                 // Sí está autorizado. Ahora verificamos si además es ADMINISTRADOR (para mostrar o no el botón de ajustes)
                 nombreDocenteHtml.textContent = `Hola, ${user.displayName || 'Profesor'}`;
                 appBody.classList.remove('invisible');
-                
+
                 const snapshotAdmin = await get(child(dbRef, `administradores/${emailLimpio}`));
                 if (snapshotAdmin.exists()) {
                     botonAjustes.classList.remove('hidden'); // Es admin (ej: auxiliar), le mostramos Ajustes
@@ -83,34 +85,34 @@ onAuthStateChanged(auth, async (user) => {
 // 3. LECTURA EN TIEMPO REAL DEL INVENTARIO (Estructura jerárquica)
 function escucharInventario() {
     const inventarioRef = ref(db, 'inventario');
-    
+
     onValue(inventarioRef, (snapshot) => {
         tarjeteroRecursos.innerHTML = ''; // Limpiamos el contenedor
         const categorias = snapshot.val();
-        
+
         if (!categorias) {
             tarjeteroRecursos.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8">No hay equipos registrados en el inventario.</p>`;
             return;
         }
-        
+
         // Recorrer las categorías ("mapas", "proyectores")
         Object.keys(categorias).forEach(idCategoria => {
             const recursosDeCategoria = categorias[idCategoria];
-            
+
             // Recorrer los recursos específicos dentro de esa categoría
             Object.keys(recursosDeCategoria).forEach(idRecurso => {
                 const item = recursosDeCategoria[idRecurso];
                 const stock = item.stock_total;
                 const tieneStock = stock > 0;
-                
+
                 // Configuración de Estados Visuales
                 const colorBorde = tieneStock ? 'border-green-400' : 'border-red-400 bg-red-50';
                 const badgeColor = tieneStock ? 'bg-green-100 text-green-800' : 'bg-red-200 text-red-900 font-bold';
                 const badgeTexto = tieneStock ? `Disponibles: ${stock}` : 'AGOTADO HOY';
                 const filtroImagen = tieneStock ? 'opacity-100' : 'opacity-40 grayscale';
-                
+
                 // --- CAMBIO CLAVE: LEER DIRECTO DE FIREBASE O COLOCAR UN MOCK UP POR SI ESTÁ VACÍO ---
-                const rutaImagen = item.imagen || "img/default-recurso.jpg"; 
+                const rutaImagen = item.imagen || "img/default-recurso.jpg";
                 const textoDescripcion = item.descripcion || "Sin descripción disponible momentáneamente.";
 
                 // Construcción dinámica de la Ficha Individual con tus datos reales
@@ -138,15 +140,15 @@ function escucharInventario() {
                             ${!tieneStock ? 'disabled' : ''}
                             class="w-full py-3 px-4 rounded-xl font-bold text-center transition-all text-base shadow-sm
                             ${tieneStock
-                                ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
                         >
                             ${tieneStock ? 'Reservar este recurso' : 'No disponible'}
                         </button>
                     </div>
                 </div>
                 `;
-                
+
                 // Inyectar en la grilla visual
                 tarjeteroRecursos.insertAdjacentHTML('beforeend', fichaHTML);
             });
@@ -176,5 +178,5 @@ btnLogout.addEventListener('click', desconectarSesion);
 
 // Vincular botón de ajustes del NAV (si lo necesitás)
 botonAjustes.addEventListener('click', () => {
-    window.location.href = "ajustes.html"; 
+    window.location.href = "ajustes.html";
 });
