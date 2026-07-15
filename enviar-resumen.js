@@ -1,16 +1,17 @@
 // enviar-resumen.js
-const admin = require('firebase-admin');
-const nodemailer = require('nodemailer'); // Reemplazamos Resend por Nodemailer
+const { initializeApp, cert } = require('firebase-admin/app'); // <-- Nueva sintaxis de Firebase Admin
+const { getDatabase } = require('firebase-admin/database');    // <-- Nueva sintaxis de Firebase Admin
+const nodemailer = require('nodemailer');
 
 // Inicializamos Firebase con las credenciales seguras de GitHub
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+initializeApp({
+  credential: cert(serviceAccount),
   databaseURL: "https://reservasisd-default-rtdb.firebaseio.com/"
 });
 
-const db = admin.database();
+const db = getDatabase(); // <-- Ahora obtenemos la base de datos de esta forma
 
 // Configuración del transporte SMTP con tu cuenta de Google
 const transporter = nodemailer.createTransport({

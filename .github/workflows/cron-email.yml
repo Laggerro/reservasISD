@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-size: 20
+          node-version: 20
 
       # 3. Instalar las dependencias de Firebase Admin y Nodemailer
       - name: Install dependencies
