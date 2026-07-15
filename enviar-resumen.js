@@ -10,7 +10,7 @@ const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://reservasisd-default-rtdb.firebaseio.com/" // Reemplaza por la URL de tu Firebase
+  databaseURL: "https://reservasisd-default-rtdb.firebaseio.com/"
 });
 
 const db = admin.database();
@@ -22,7 +22,7 @@ async function obtenerDestinatariosReporte() {
   
   const correos = [];
 
-  // Agregamos el correo de respaldo que configuraste en tus Secrets de GitHub por si acaso
+  // Agregamos el correo de respaldo configurado en tus Secrets de GitHub
   if (process.env.EMAIL_DESTINATARIO) {
     correos.push(process.env.EMAIL_DESTINATARIO.trim().toLowerCase());
   }
@@ -31,6 +31,7 @@ async function obtenerDestinatariosReporte() {
   if (snapshot.exists()) {
     snapshot.forEach((childSnapshot) => {
       const usuario = childSnapshot.val();
+      // Validamos explícitamente que sea true (booleano)
       if (usuario.recibe_reporte === true && usuario.email) {
         correos.push(usuario.email.trim().toLowerCase());
       }
@@ -38,18 +39,27 @@ async function obtenerDestinatariosReporte() {
   }
 
   // Quitamos correos duplicados por seguridad
-  return [...new Set(correos)];
+  const destinatariosUnicos = [...new Set(correos)];
+  console.log(`📋 Destinatarios encontrados en Firebase: [${destinatariosUnicos.join(', ')}]`);
+  return destinatariosUnicos;
+}
+
+// Función para formatear la fecha de hoy de forma 100% segura en huso horario de Argentina (GMT-3)
+function obtenerFechaArgentina() {
+  const d = new Date();
+  // Forzamos el desvío horario manual a GMT-3 para evitar problemas de servidor
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const argDate = new Date(utc + (3600000 * -3));
+
+  const offsetYear = argDate.getFullYear();
+  const offsetMonth = String(argDate.getMonth() + 1).padStart(2, '0');
+  const offsetDay = String(argDate.getDate()).padStart(2, '0');
+
+  return `${offsetYear}-${offsetMonth}-${offsetDay}`;
 }
 
 async function generarYEnviarReporte() {
-  // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires) -> "AAAA-MM-DD"
-  const fechaHoy = new Date().toLocaleDateString("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).split('/').reverse().join('-'); // Convierte DD/MM/AAAA a AAAA-MM-DD
-
+  const fechaHoy = obtenerFechaArgentina();
   const reservasRef = db.ref('reservas');
   
   try {
@@ -58,7 +68,7 @@ async function generarYEnviarReporte() {
 
     if (destinatarios.length === 0) {
       console.log("⚠️ No hay destinatarios configurados para recibir el reporte. Proceso cancelado.");
-      process.exit();
+      process.exit(0);
     }
 
     // 2. Buscamos las reservas
@@ -80,16 +90,15 @@ async function generarYEnviarReporte() {
           const fechaReserva = r.start.substring(0, 10);
           
           if (fechaReserva === fechaHoy) {
-            // Extraemos las horas de inicio y fin para armar el rango de tiempo (módulo)
             const horaInicio = r.start.substring(11, 16); // "HH:MM"
             const horaFin = r.end ? r.end.substring(11, 16) : 'No especificada';
             const horario = `${horaInicio} a ${horaFin} hs`;
 
             tablaFilas += `
               <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.usuarioNombre || 'Sin nombre'}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${r.equipo || 'Sin recurso'}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${horario}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-family: sans-serif;">${r.usuarioNombre || 'Sin nombre'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-family: sans-serif;">${r.equipo || 'Sin recurso'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-family: sans-serif;">${horario}</td>
               </tr>`;
             hayReservas = true;
           }
@@ -100,14 +109,14 @@ async function generarYEnviarReporte() {
     let contenidoHtml = '';
     if (hayReservas) {
       contenidoHtml = `
-        <h2>☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
-        <p>Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
+        <p style="font-family: sans-serif; color: #374151;">Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
           <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Docente</th>
-              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Recurso / Equipo</th>
-              <th style="padding: 8px; border-bottom: 2px solid #ddd;">Horario</th>
+            <tr style="background-color: #f3f4f6;">
+              <th style="padding: 8px; border-bottom: 2px solid #e5e7eb; font-family: sans-serif; color: #1f2937;">Docente</th>
+              <th style="padding: 8px; border-bottom: 2px solid #e5e7eb; font-family: sans-serif; color: #1f2937;">Recurso / Equipo</th>
+              <th style="padding: 8px; border-bottom: 2px solid #e5e7eb; font-family: sans-serif; color: #1f2937;">Horario</th>
             </tr>
           </thead>
           <tbody>
@@ -117,26 +126,27 @@ async function generarYEnviarReporte() {
       `;
     } else {
       contenidoHtml = `
-        <h2>☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
-        <p>Hola. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>
+        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
+        <p style="font-family: sans-serif; color: #374151;">Hola. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>
       `;
     }
 
-    console.log(`📧 Enviando reporte diario a: ${destinatarios.join(', ')}`);
+    console.log(`📧 Intentando enviar reporte diario a: [${destinatarios.join(', ')}]`);
 
     // 3. Enviar el correo usando Resend
-    await resend.emails.send({
+    const response = await resend.emails.send({
       from: 'Sistema ISD <onboarding@resend.dev>',
       to: destinatarios, 
       subject: `☀️ Reservas del Día - ${fechaHoy}`,
       html: contenidoHtml
     });
 
-    console.log("✅ Reporte diario enviado con éxito.");
+    console.log("✅ Respuesta de Resend:", response);
+    console.log("✅ Reporte diario procesado con éxito.");
   } catch (error) {
     console.error("❌ Error al procesar el reporte diario:", error);
   }
-  process.exit();
+  process.exit(0);
 }
 
 generarYEnviarReporte();
