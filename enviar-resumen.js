@@ -15,8 +15,34 @@ admin.initializeApp({
 
 const db = admin.database();
 
+// Función para obtener la lista de correos que tienen "recibe_reporte: true" en Firebase
+async function obtenerDestinatariosReporte() {
+  const ref = db.ref('usuarios_autorizados');
+  const snapshot = await ref.once('value');
+  
+  const correos = [];
+
+  // Agregamos el correo de respaldo que configuraste en tus Secrets de GitHub por si acaso
+  if (process.env.EMAIL_DESTINATARIO) {
+    correos.push(process.env.EMAIL_DESTINATARIO.trim().toLowerCase());
+  }
+
+  // Recorremos los usuarios en Firebase buscando los que tengan "recibe_reporte: true"
+  if (snapshot.exists()) {
+    snapshot.forEach((childSnapshot) => {
+      const usuario = childSnapshot.val();
+      if (usuario.recibe_reporte === true && usuario.email) {
+        correos.push(usuario.email.trim().toLowerCase());
+      }
+    });
+  }
+
+  // Quitamos correos duplicados por seguridad
+  return [...new Set(correos)];
+}
+
 async function generarYEnviarReporte() {
-  // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires)
+  // Obtenemos la fecha de hoy en formato local de Argentina (Buenos Aires) - CORREGIDO CON "_"
   const fechaHoy = new Date().toLocaleDateString("es-AR", {
     timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
@@ -25,11 +51,20 @@ async function generarYEnviarReporte() {
   }).split('/').reverse().join('-'); // Convierte DD/MM/AAAA a AAAA-MM-DD
 
   const reservasRef = db.ref('reservas');
-
+  
   try {
+    // 1. Buscamos los destinatarios dinámicos
+    const destinatarios = await obtenerDestinatariosReporte();
+
+    if (destinatarios.length === 0) {
+      console.log("⚠️ No hay destinatarios configurados para recibir el reporte. Proceso cancelado.");
+      process.exit();
+    }
+
+    // 2. Buscamos las reservas
     const snapshot = await reservasRef.once('value');
     const reservas = snapshot.val();
-
+    
     let tablaFilas = '';
     let hayReservas = false;
 
@@ -52,7 +87,7 @@ async function generarYEnviarReporte() {
     if (hayReservas) {
       contenidoHtml = `
         <h2>☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
-        <p>Hola, te dejamos el resumen de los recursos reservados para el día de hoy:</p>
+        <p>Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
           <thead>
             <tr style="background-color: #f2f2f2;">
@@ -73,10 +108,12 @@ async function generarYEnviarReporte() {
       `;
     }
 
-    // Enviar el correo usando Resend
+    console.log(`📧 Enviando reporte diario a: ${destinatarios.join(', ')}`);
+
+    // 3. Enviar el correo usando Resend (acepta un Array de correos)
     await resend.emails.send({
       from: 'Sistema ISD <onboarding@resend.dev>', // Remitente gratuito por defecto de Resend
-      to: process.env.EMAIL_DESTINATARIO, // Mail del Auxiliar (se configura seguro en GitHub)
+      to: destinatarios, 
       subject: `☀️ Reservas del Día - ${fechaHoy}`,
       html: contenidoHtml
     });
