@@ -19,6 +19,7 @@ const configHoraReporte = document.getElementById('config-hora-reporte');
 const btnGuardarHora = document.getElementById('btn-guardar-hora');
 const txtStatusConfig = document.getElementById('txt-status-config');
 
+
 // ==========================================
 // 🔑 CLAVE DE API DE IMGBB (Pegá acá tu clave)
 // ==========================================
@@ -417,10 +418,13 @@ async function cargarConfiguracionHora() {
 }
 
 // 2. Guardar la nueva hora seleccionada por el Administrador
-btnGuardarHora.addEventListener('click', async () => {
-    const nuevaHora = configHoraReporte.value;
+// Guardar la nueva hora seleccionada por el Administrador
+btnGuardarHora.addEventListener('click', async (e) => {
+    e.preventDefault(); // Evita recargas extrañas
+
+    const nuevaHora = configHoraReporte.value.trim();
     if (!nuevaHora) {
-        alert("Por favor, seleccioná una hora válida.");
+        alert("Por favor, ingresá al menos un horario válido.");
         return;
     }
 
@@ -428,21 +432,26 @@ btnGuardarHora.addEventListener('click', async () => {
         btnGuardarHora.disabled = true;
         btnGuardarHora.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Guardando...`;
 
-        // Guardamos directamente en el nodo principal de configuración
+        // Guardamos directamente en el nodo de configuración
         const horaRef = ref(db, 'configuracion/hora_reporte');
         await set(horaRef, nuevaHora);
 
-        // Mostrar aviso visual de éxito efímero
-        txtStatusConfig.classList.remove('hidden');
-        setTimeout(() => {
-            txtStatusConfig.classList.add('hidden');
-        }, 3000);
+        // PROTECCIÓN: Solo manejamos la clase si el elemento realmente existe en el HTML
+        if (txtStatusConfig) {
+            txtStatusConfig.classList.remove('hidden');
+            setTimeout(() => {
+                txtStatusConfig.classList.add('hidden');
+            }, 3000);
+        } else {
+            // Si no existe el elemento visual de éxito, mostramos un alert simple
+            alert("¡Horarios guardados con éxito!");
+        }
 
     } catch (error) {
         console.error("Error al guardar la configuración de hora:", error);
         alert("No se pudo guardar la configuración en la base de datos.");
     } finally {
         btnGuardarHora.disabled = false;
-        btnGuardarHora.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Hora`;
+        btnGuardarHora.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Horarios`;
     }
 });

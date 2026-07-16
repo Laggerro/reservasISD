@@ -52,41 +52,47 @@ function obtenerFechaYHoraArgentina() {
 }
 
 // Nueva función para verificar si coincide la hora actual con la de Firebase
+// Nueva función para verificar si coincide la hora actual con alguna de las configuradas en Firebase
 async function verificarHoraDeEnvio() {
   try {
-    const configRef = db.ref('configuracion/hora_reporte');
+    const configRef = db.ref('configuraciones/hora_reporte');
     const snapshot = await configRef.once('value');
     
-    // Si no existe configuración en la DB, por defecto es a las "08:00"
-    const horaConfigurada = snapshot.exists() ? snapshot.val() : "08:00"; 
+    // Si no existe configuración, por defecto dejamos las "08:00"
+    const valorFirebase = snapshot.exists() ? snapshot.val() : "08:00"; 
     
+    // Convertimos el string en un Array. Ej: "08:00, 13:00" -> ["08:00", "13:00"]
+    const horasConfiguradas = valorFirebase
+      .split(',')
+      .map(hora => hora.trim()); // Limpia espacios en blanco accidentales
+
     const fechaArg = obtenerFechaYHoraArgentina();
     const horaActual = String(fechaArg.getHours()).padStart(2, '0');
     
-    // Redondeamos los minutos a bloques de 30 para coincidir con la frecuencia del Cron de GitHub
+    // Redondeamos los minutos a bloques de 30 para acoplarnos al Cron de GitHub Actions
     const minutos = fechaArg.getMinutes();
     let minutosAlineados = "00";
     if (minutos >= 15 && minutos < 45) {
       minutosAlineados = "30";
     } else if (minutos >= 45) {
-      // Si son más de las XX:45, consideramos que está más cerca de la siguiente hora
+      // Si son más de las XX:45, redondeamos a la siguiente hora en punto
       const siguienteHora = String((fechaArg.getHours() + 1) % 24).padStart(2, '0');
       const horaFormateadaSiguiente = `${siguienteHora}:00`;
       
-      console.log(`⏰ Hora actual: ${horaActual}:${String(minutos).padStart(2, '0')} | Buscando coincidencia con: ${horaConfigurada}`);
-      return horaFormateadaSiguiente === horaConfigurada;
+      console.log(`⏰ Hora real: ${horaActual}:${String(minutos).padStart(2, '0')} | Horarios permitidos en DB: [${horasConfiguradas.join(', ')}]`);
+      return horasConfiguradas.includes(horaFormateadaSiguiente);
     }
 
     const horaActualString = `${horaActual}:${minutosAlineados}`;
 
-    console.log(`⏰ Hora actual (redondeada): ${horaActualString} | Hora programada en DB: ${horaConfigurada}`);
+    console.log(`⏰ Hora redondeada: ${horaActualString} | Horarios permitidos en DB: [${horasConfiguradas.join(', ')}]`);
     
-    // Retorna true si coinciden (ej: "08:30" === "08:30")
-    return horaActualString === horaConfigurada;
+    // Retorna true si la hora actual calculada está presente en la lista de la base de datos
+    return horasConfiguradas.includes(horaActualString);
 
   } catch (error) {
-    console.error("❌ Error al verificar la hora en Firebase:", error);
-    return false; // Ante la duda, no enviamos para evitar spam
+    console.error("❌ Error al verificar las horas en Firebase:", error);
+    return false; // Por seguridad ante fallos, no enviamos
   }
 }
 

@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control - ISD</title>
-   <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-100 min-h-screen">
-    
+
     <nav class="bg-blue-800 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold"><i class="fa-solid fa-gears mr-2"></i>Ajustes del Sistema</h1>
-        <button id="btn-volver" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold transition">
+        <button id="btn-volver"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold transition">
             ← Volver a Equipos
         </button>
     </nav>
 
     <!-- CONTENEDOR PRINCIPAL -->
     <main class="max-w-7xl mx-auto my-8 p-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         <!-- SECCIÓN DE EQUIPOS (INVENTARIO) -->
         <section class="space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-md">
@@ -31,38 +34,46 @@
                 </div>
             </div>
 
-<!-- NUEVO: CONFIGURACIÓN GENERAL DEL SISTEMA (Habilitar y programar reporte) -->
-        <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-amber-500 mt-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                <i class="fa-solid fa-clock text-amber-600 mr-1"></i> Configuración de Reporte Diario
-            </h2>
-            <p class="text-xs text-gray-500 mb-4">Hora en la que se enviará de forma automática el correo con las reservas programadas para el día. (cada 30Min)</p>
-            
-            <div class="flex flex-col sm:flex-row items-end gap-4">
-                <div class="flex-grow">
-                    <label class="block text-gray-700 text-xs font-bold mb-1">Hora de Envío (Formatos de 24 hs):</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <i class="fa-regular fa-clock text-xs"></i>
-                        </span>
-                        <input type="time" id="config-hora-reporte" class="w-full border rounded-xl pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none" required>
+            <!-- NUEVO: CONFIGURACIÓN GENERAL DEL SISTEMA (Habilitar y programar reporte) -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-amber-500 mt-6">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-clock text-amber-600 mr-1"></i> Configuración de Reporte Diario
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">
+                    Definí a qué hora se enviará el correo resumen.
+                    <strong>Podés ingresar varias horas separadas por coma (ej: 08:00, 13:30, 19:00)</strong>.
+                </p>
+                <div class="flex flex-col sm:flex-row items-end gap-4">
+                    <div class="flex-grow">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">Horarios de Envío (Formatos de 24
+                            hs):</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fa-regular fa-clock text-xs"></i>
+                            </span>
+                            <!-- Cambiamos el input de "time" a "text" para que permita escribir comas y múltiples horas de corrido -->
+                            <input type="text" id="config-hora-reporte"
+                                class="w-full border rounded-xl pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                                placeholder="Ej: 08:00, 13:00, 19:30" required>
+                        </div>
                     </div>
+                    <button id="btn-guardar-hora"
+                        class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md text-xs transition-all active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Horarios
+                    </button>
                 </div>
-                <button id="btn-guardar-hora" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md text-xs transition-all active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-floppy-disk"></i> Guardar Hora
-                </button>
             </div>
-            <p id="txt-status-config" class="text-[10px] text-green-600 font-bold mt-2 hidden"><i class="fa-solid fa-circle-check"></i> Configuración guardada en la base de datos</p>
-        </div>
- <div class="bg-white p-6 rounded-2xl shadow-md">
+            <div class="bg-white p-6 rounded-2xl shadow-md">
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
                     <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i>Nuevo Recurso
                 </h2>
-                
+
                 <form id="form-nuevo-recurso" enctype="multipart/form-data">
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Categoría:</label>
-                        <select id="recurso-categoria" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" required>
+                        <select id="recurso-categoria"
+                            class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            required>
                             <option value="" disabled selected>Elegí categoría...</option>
                             <option value="tecnologia">Tecnología (Notebooks, Impresoras 3D)</option>
                             <option value="audiovisual">Audiovisual (Proyectores, Audio)</option>
@@ -72,25 +83,31 @@
 
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Nombre del Recurso:</label>
-                        <input type="text" id="recurso-nombre" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: Proyector Epson HDMI" required>
+                        <input type="text" id="recurso-nombre" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Ej: Proyector Epson HDMI" required>
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Cantidad (Stock):</label>
-                        <input type="number" id="recurso-cantidad" min="1" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: 4" required>
+                        <input type="number" id="recurso-cantidad" min="1"
+                            class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: 4" required>
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Descripción:</label>
-                        <textarea id="recurso-descripcion" rows="3" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Breve explicación de uso o accesorios que incluye..."></textarea>
+                        <textarea id="recurso-descripcion" rows="3" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Breve explicación de uso o accesorios que incluye..."></textarea>
                     </div>
 
                     <div class="mb-6">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Imagen (Foto del Recurso):</label>
-                        <input type="file" id="recurso-imagen" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                        <input type="file" id="recurso-imagen" accept="image/*"
+                            class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            required>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
                         Guardar en Inventario
                     </button>
                 </form>
@@ -99,27 +116,31 @@
         </section>
 
         <!-- SECCIÓN DE ADMINISTRADORES / AUXILIARES (NUEVA) -->
-     
+
         <!-- SECCIÓN DE USUARIOS Y PERMISOS (LADO DERECHO) -->
         <section class="space-y-6">
-            
+
             <!-- FORMULARIO 1: AUTORIZAR PROFESORES (NUEVO) -->
             <div class="bg-white p-6 rounded-2xl shadow-md">
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
                     <i class="fa-solid fa-user-plus text-green-600 mr-1"></i>Autorizar Nuevo Docente
                 </h2>
-                <p class="text-xs text-gray-500 mb-4">Los usuarios podrán iniciar sesión y reservar recursos, pero no tendrán acceso a este panel de ajustes.</p>
-                
+                <p class="text-xs text-gray-500 mb-4">Los usuarios podrán iniciar sesión y reservar recursos, pero no
+                    tendrán acceso a este panel de ajustes.</p>
+
                 <form id="form-nuevo-profesor">
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Nombre del Docente:</label>
-                        <input type="text" id="profe-nombre" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: Prof. María Giménez" required>
+                        <input type="text" id="profe-nombre" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Ej: Prof. María Giménez" required>
                     </div>
                     <div class="mb-6">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Correo Electrónico:</label>
-                        <input type="email" id="profe-email" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: m.gimenez@colegio.edu" required>
+                        <input type="email" id="profe-email" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Ej: m.gimenez@colegio.edu" required>
                     </div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
+                    <button type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
                         Autorizar Docente
                     </button>
                 </form>
@@ -140,18 +161,22 @@
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
                     <i class="fa-solid fa-user-shield text-indigo-600 mr-1"></i>Otorgar Rol de Administrador
                 </h2>
-                <p class="text-xs text-gray-500 mb-4"><strong>Nota:</strong> Para ser administrador, el usuario ya debe estar registrado como Docente Autorizado arriba.</p>
-                
+                <p class="text-xs text-gray-500 mb-4"><strong>Nota:</strong> Para ser administrador, el usuario ya debe
+                    estar registrado como Docente Autorizado arriba.</p>
+
                 <form id="form-nuevo-admin">
                     <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Nombre Completo:</label>
-                        <input type="text" id="admin-nombre" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: Juan Pérez" required>
+                        <input type="text" id="admin-nombre" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Ej: Juan Pérez" required>
                     </div>
                     <div class="mb-6">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Correo Electrónico:</label>
-                        <input type="email" id="admin-email" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="Ej: auxiliar@colegio.edu" required>
+                        <input type="email" id="admin-email" class="w-full border rounded-xl px-3 py-2 text-sm"
+                            placeholder="Ej: auxiliar@colegio.edu" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md text-sm transition-all active:scale-98">
                         Dar Permisos de Admin
                     </button>
                 </form>
@@ -173,4 +198,5 @@
 
     <script type="module" src="app-ajustes.js"></script>
 </body>
+
 </html>
