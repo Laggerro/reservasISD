@@ -102,7 +102,7 @@ async function generarYEnviarReporte() {
     if (hayReservas) {
       contenidoHtml = `
         <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
-        <p style="font-family: sans-serif; color: #374151;">Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
+        <p style="font-family: sans-serif; color: #374151;"> 👋 Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
           <thead>
             <tr style="background-color: #f3f4f6;">
@@ -119,7 +119,7 @@ async function generarYEnviarReporte() {
     } else {
       contenidoHtml = `
         <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
-        <p style="font-family: sans-serif; color: #374151;">Hola. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>
+        <p style="font-family: sans-serif; color: #374151;">👋 Hola. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>
       `;
     }
 

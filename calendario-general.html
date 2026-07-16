@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas - ISd</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS de FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+    <!-- Script de FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+    <div id="contenedor-admin" class="hidden flex-1 flex flex-col">
+        <!-- Navbar -->
+        <header class="bg-blue-600 text-white shadow-md px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days"></i> Control de Reservas
+            </h1>
+            <button id="btn-volver" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-xl font-bold transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Volver a Equipos
+            </button>
+        </header>
+
+        <!-- Contenedor Principal -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Columna Izquierda: Listado de Equipos y Auditoría -->
+            <section class="lg:col-span-1 bg-white p-4 rounded-2xl shadow-md border flex flex-col gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-800 mb-1">Filtrar por Equipo</h2>
+                    <p class="text-xs text-gray-500">Seleccioná un equipo para ver sus reservas individuales y su
+                        historial.</p>
+                </div>
+
+                <!-- Botón para ver todo junto -->
+                <button id="btn-ver-todos"
+                    class="w-full py-2.5 px-4 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm border border-blue-200 hover:bg-blue-100 transition text-left flex items-center justify-between">
+                    <span>Ver todas las reservas</span>
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+
+                <!-- Contenedor del listado de equipos (Dinámico) -->
+                <div id="lista-equipos-filtro"
+                    class="flex-1 overflow-y-auto max-h-[300px] lg:max-h-none flex flex-col gap-2 pr-1">
+                    <!-- Se rellena con JS -->
+                    <p class="text-center text-gray-400 py-4 text-sm">Cargando inventario...</p>
+                </div>
+
+                <!-- Tarjeta de Información de Última Reserva -->
+                <div id="panel-auditoria" class="bg-gray-50 border rounded-xl p-3 flex flex-col gap-2 mt-auto hidden">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Última Reserva Registrada</h3>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            <i class="fa-solid fa-user-clock text-sm"></i>
+                        </div>
+                        <div>
+                            <p id="auditoria-profesor" class="text-sm font-bold text-gray-800 leading-tight">-</p>
+                            <p id="auditoria-fecha" class="text-xs text-gray-500">-</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Columna Derecha: Calendario -->
+            <section class="lg:col-span-3 bg-white p-4 rounded-2xl shadow-md border flex flex-col min-h-[550px]">
+                <div id="calendario" class="flex-1"></div>
+            </section>
+
+        </main>
+
+        <!-- Script de lógica -->
+        <script type="module" src="calendario-general.js"></script>
+        <!-- MODAL DE DETALLE DE RESERVA -->
+    <div id="modal-detalle" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform scale-95 transition-transform duration-300" id="modal-contenido">
+            
+            <!-- Cabecera del Modal (Color dinámico según la categoría) -->
+            <div id="modal-header" class="p-4 text-white flex justify-between items-center bg-blue-600">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i> Detalle de la Reserva
+                </h3>
+                <button id="btn-cerrar-modal" class="text-white/80 hover:text-white text-xl font-bold p-1 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Cuerpo del Modal -->
+            <div class="p-6 flex flex-col gap-4">
+                
+                <!-- Equipo -->
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 shrink-0 mt-0.5">
+                        <i class="fa-solid fa-laptop"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Equipo / Recurso</p>
+                        <p id="modal-recurso" class="text-sm font-bold text-gray-800">-</p>
+                    </div>
+                </div>
+
+                <!-- Docente -->
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-green-600 shrink-0 mt-0.5">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Reservado Por</p>
+                        <p id="modal-docente" class="text-sm font-bold text-gray-800">-</p>
+                        <p id="modal-docente-email" class="text-xs text-gray-500">-</p>
+                    </div>
+                </div>
+
+                <!-- Horarios -->
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="w-full">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Horario de Reserva</p>
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <div class="bg-gray-50 p-2 rounded-lg border">
+                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Desde</span>
+                                <span id="modal-hora-inicio" class="text-xs font-semibold text-gray-700">-</span>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded-lg border">
+                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Hasta</span>
+                                <span id="modal-hora-fin" class="text-xs font-semibold text-gray-700">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fecha de Registro/Creación -->
+                <div class="text-right mt-2">
+                    <p id="modal-fecha-registro" class="text-[10px] text-gray-400 italic">Registrado el: -</p>
+                </div>
+
+            </div>
+
+            <!-- Botón de Acción Inferior -->
+            <div class="bg-gray-50 px-6 py-4 flex justify-end border-t">
+                <button id="btn-entendido" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition shadow-sm">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

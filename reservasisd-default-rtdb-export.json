@@ -1,0 +1,185 @@
+{
+  "administradores": {
+    "laggerro2_gmail_com": {
+      "email": "laggerro2@gmail.com",
+      "nombre": "Administrador Principal"
+    }
+  },
+  "inventario": {
+    "audiovisual": {
+      "camara_web_hd": {
+        "descripcion": "Camara WEB HD USB, para Videoconferencia con Micrófono integrado.",
+        "imagen": "https://i.ibb.co/CsWWPDJ1/Camara-WEB.png",
+        "nombre": "Camara WEB HD",
+        "stock_total": 3
+      },
+      "equipo_de_audio_port_til": {
+        "descripcion": "Parlante activo con entrada para Micrófono o PC, ideal para actos o clases de idiomas.",
+        "imagen": "https://i.ibb.co/CKsVkf1J/parlante.jpg",
+        "nombre": "Equipo de Audio Portátil",
+        "stock_total": 1
+      },
+      "micr_fono_inal_mbrico": {
+        "descripcion": "Micrófono Inalámbrico DOBLE. Verificar baterias de los Micrófonos previamente.",
+        "imagen": "https://i.ibb.co/wh6D3Ljg/Microfonos-inalambricos.png",
+        "nombre": "Micrófono Inalámbrico",
+        "stock_total": 1
+      },
+      "proyector_led": {
+        "descripcion": "Proyector de alta definición LED con cable HDMI. Sin pantalla.",
+        "imagen": "https://i.ibb.co/nMjNXL39/Proyector-LED.jpg",
+        "nombre": "Proyector LED",
+        "stock_total": 1
+      }
+    },
+    "tecnologia": {
+      "impresora_3d": {
+        "descripcion": "Impresora 3D Hellbot con memoria. Pedir Filamentos por separado.",
+        "imagen": "https://i.ibb.co/JFjNWhjV/impresora3d.webp",
+        "nombre": "Impresora 3D",
+        "stock_total": 1
+      },
+      "notebook": {
+        "descripcion": "Notebook para trabajo en el aula. Con cargador.",
+        "imagen": "https://i.ibb.co/6R1BwLhf/notebook.jpg",
+        "nombre": "Notebook",
+        "stock_total": 1
+      },
+      "pc_escritorio_para_streaming": {
+        "descripcion": "Computadora preparada para Streaming con OBS Studio instalado. Monitor, Mouse y Teclado. Pedir otras cosas por separado.",
+        "imagen": "https://i.ibb.co/Gy6Ch0F/Pc-streaming.png",
+        "nombre": "PC escritorio para Streaming",
+        "stock_total": 1
+      }
+    }
+  },
+  "reservas": {
+    "-OxWDpPY5yZFMfVL_5Ab": {
+      "color": "#10b981",
+      "end": "2026-07-14T13:30:00",
+      "equipo": "Kit de Robótica Lego EV3",
+      "start": "2026-07-14T12:30:00",
+      "timestampCreacion": 1784042707327,
+      "title": "Kit de Robótica Lego EV3 (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxWRYZf16vz6CgwJXBq": {
+      "color": "#10b981",
+      "end": "2026-07-15T08:30:00",
+      "equipo": "Equipo de Audio Portátil",
+      "start": "2026-07-15T07:30:00",
+      "timestampCreacion": 1784046526176,
+      "title": "Equipo de Audio Portátil (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxXqoSmthgbBk01WN12": {
+      "color": "#10b981",
+      "end": "2026-07-20T08:30:00",
+      "equipo": "Kit de Robótica Lego EV3",
+      "start": "2026-07-20T07:30:00",
+      "timestampCreacion": 1784069966540,
+      "title": "Kit de Robótica Lego EV3 (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxXqq-mTV_xDEWxGYE7": {
+      "color": "#10b981",
+      "end": "2026-07-20T09:30:00",
+      "equipo": "Kit de Robótica Lego EV3",
+      "start": "2026-07-20T08:30:00",
+      "timestampCreacion": 1784069972878,
+      "title": "Kit de Robótica Lego EV3 (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxY5qLATMOP_nTwXzMR": {
+      "color": "#10b981",
+      "end": "2026-07-15T08:30:00",
+      "equipo": "Equipo de Audio Portátil",
+      "start": "2026-07-15T07:30:00",
+      "timestampCreacion": 1784074168556,
+      "title": "Equipo de Audio Portátil (Unidad 2) - Mariela",
+      "usuarioEmail": "mvillagra@institutosandiego.edu.ar",
+      "usuarioNombre": "Mariela Villagra"
+    },
+    "-OxY8ZLwjFjLuh973IgL": {
+      "color": "#10b981",
+      "end": "2026-07-22T13:30:00",
+      "equipo": "Kit de Robótica Lego EV3",
+      "start": "2026-07-22T12:30:00",
+      "timestampCreacion": 1784074880682,
+      "title": "Kit de Robótica Lego EV3 (Unidad 1) - Mariela",
+      "usuarioEmail": "mvillagra@institutosandiego.edu.ar",
+      "usuarioNombre": "Mariela Villagra"
+    },
+    "-Ox_cxy4oSfu0PnK568k": {
+      "color": "#10b981",
+      "end": "2026-07-15T11:30:00",
+      "equipo": "Impresora 3D Magna 1",
+      "start": "2026-07-15T10:30:00",
+      "timestampCreacion": 1784116890831,
+      "title": "Impresora 3D Magna 1 (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxaUDU1avmkN8V1oCGd": {
+      "color": "#10b981",
+      "end": "2026-07-16T10:30:00",
+      "equipo": "Equipo de Audio Portátil",
+      "start": "2026-07-16T09:30:00",
+      "timestampCreacion": 1784130890001,
+      "title": "Equipo de Audio Portátil (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxaUGi-NMhzrNZU0x6X": {
+      "color": "#10b981",
+      "end": "2026-07-16T11:30:00",
+      "equipo": "Equipo de Audio Portátil",
+      "start": "2026-07-16T10:30:00",
+      "timestampCreacion": 1784130903252,
+      "title": "Equipo de Audio Portátil (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxaUMUPdk0v0I6PPkMd": {
+      "color": "#10b981",
+      "end": "2026-07-16T14:30:00",
+      "equipo": "Proyector Epson HDMI",
+      "start": "2026-07-16T13:30:00",
+      "timestampCreacion": 1784130926889,
+      "title": "Proyector Epson HDMI (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxaUQ0fX3ai3FiFARNP": {
+      "color": "#10b981",
+      "end": "2026-07-16T13:30:00",
+      "equipo": "Proyector Epson HDMI",
+      "start": "2026-07-16T12:30:00",
+      "timestampCreacion": 1784130941370,
+      "title": "Proyector Epson HDMI (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    },
+    "-OxaUVHts0j6dydH44rX": {
+      "color": "#10b981",
+      "end": "2026-07-16T17:30:00",
+      "equipo": "Set de Mapas Históricos",
+      "start": "2026-07-16T16:30:00",
+      "timestampCreacion": 1784130962966,
+      "title": "Set de Mapas Históricos (Unidad 1) - Roberto",
+      "usuarioEmail": "laggerro2@gmail.com",
+      "usuarioNombre": "Roberto Lagger"
+    }
+  },
+  "usuarios_autorizados": {
+    "laggerro2@gmail_com": {
+      "email": "laggerro2@gmail.com",
+      "nombre": "Roberto",
+      "recibe_reporte": false
+    }
+  }
+}

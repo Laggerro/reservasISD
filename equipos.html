@@ -17,10 +17,17 @@
             <p class="text-xs opacity-90">Seleccioná un recurso para gestionar</p>
         </div>
         
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
+            <!-- NUEVO: Botón de Calendario de Reservas (Solo visible para admins) -->
+            <a href="calendario-general.html" id="boton-calendario" class="hidden bg-emerald-600 hover:bg-emerald-700 text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-calendar-days"></i> Calendario
+            </a>
+
+            <!-- Botón de Ajustes (Solo visible para admins) -->
             <button id="boton-ajustes" class="hidden bg-yellow-500 hover:bg-yellow-600 text-xs font-bold px-3 py-2 rounded-xl transition-all">
                 ⚙️ Ajustes
             </button>
+            
             <button id="btn-logout" class="bg-red-500 hover:bg-red-600 text-xs font-bold px-3 py-2 rounded-xl transition-all">
                 Salir
             </button>
@@ -33,7 +40,8 @@
         </h2>
         
         <div id="tarjetero-recursos" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            </div>
+            <!-- Se carga de manera dinámica -->
+        </div>
     </main>
 
     <script type="module" src="app-equipos.js"></script>
