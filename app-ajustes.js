@@ -15,6 +15,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const configHoraReporte = document.getElementById('config-hora-reporte');
+const btnGuardarHora = document.getElementById('btn-guardar-hora');
+const txtStatusConfig = document.getElementById('txt-status-config');
 
 // ==========================================
 // 🔑 CLAVE DE API DE IMGBB (Pegá acá tu clave)
@@ -68,6 +71,7 @@ function inicializarPanel() {
     escucharYListarEquipos();
     escucharYListarAdmins();
     escucharYListarProfesores();
+    cargarConfiguracionHora();
 }
 
 // ======================================================
@@ -388,3 +392,55 @@ window.eliminarProfesor = async function(emailLimpio, nombreProfe) {
         }
     }
 };
+
+// ==========================================
+// MÓDULO D: CONFIGURACIÓN GENERAL DEL REPORTE
+// ==========================================
+
+// 1. Leer la hora guardada en Firebase y rellenar el input
+async function cargarConfiguracionHora() {
+    try {
+        const dbRef = ref(db);
+        // Buscamos en el nodo configuraciones/hora_reporte
+        const snapshot = await get(child(dbRef, 'configuraciones/hora_reporte'));
+        
+        if (snapshot.exists()) {
+            configHoraReporte.value = snapshot.val();
+        } else {
+            configHoraReporte.value = "08:00"; // Hora por defecto si no hay nada guardado
+        }
+    } catch (error) {
+        console.error("Error al cargar la hora del reporte:", error);
+    }
+}
+
+// 2. Guardar la nueva hora seleccionada por el Administrador
+btnGuardarHora.addEventListener('click', async () => {
+    const nuevaHora = configHoraReporte.value;
+    if (!nuevaHora) {
+        alert("Por favor, seleccioná una hora válida.");
+        return;
+    }
+
+    try {
+        btnGuardarHora.disabled = true;
+        btnGuardarHora.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Guardando...`;
+
+        // Guardamos directamente en el nodo principal de configuración
+        const horaRef = ref(db, 'configuraciones/hora_reporte');
+        await set(horaRef, nuevaHora);
+
+        // Mostrar aviso visual de éxito efímero
+        txtStatusConfig.classList.remove('hidden');
+        setTimeout(() => {
+            txtStatusConfig.classList.add('hidden');
+        }, 3000);
+
+    } catch (error) {
+        console.error("Error al guardar la configuración de hora:", error);
+        alert("No se pudo guardar la configuración en la base de datos.");
+    } finally {
+        btnGuardarHora.disabled = false;
+        btnGuardarHora.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Hora`;
+    }
+});

@@ -2,8 +2,9 @@ name: Enviar Reporte Diario de Reservas
 
 on:
   schedule:
-    # Corre automáticamente de lunes a viernes a las 07:00 AM hora de Argentina (10:00 UTC)
-    - cron: '0 10 * * 1-5'
+    # Corre automáticamente cada 30 minutos de Lunes a Viernes
+    # entre las 06:00 AM y las 21:30 PM hora de Argentina (09:00 a 00:30 UTC)
+    - cron: '0,30 9-23 * * 1-5'
   workflow_dispatch: # Permite ejecutar el flujo manualmente desde la pestaña Actions
 
 jobs:
@@ -15,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Configurar el entorno de Node.js (Forzando la versión recomendada)
+      # 2. Configurar el entorno de Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

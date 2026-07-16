@@ -24,6 +24,38 @@
         <section class="space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-md">
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                    <i class="fa-solid fa-list text-blue-600 mr-1"></i>Equipos Registrados
+                </h2>
+                <div id="lista-inventario" class="space-y-4 max-h-[450px] overflow-y-auto pr-2">
+                    <p class="text-center text-gray-500 py-4">Cargando inventario...</p>
+                </div>
+            </div>
+
+<!-- NUEVO: CONFIGURACIÓN GENERAL DEL SISTEMA (Habilitar y programar reporte) -->
+        <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-amber-500 mt-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                <i class="fa-solid fa-clock text-amber-600 mr-1"></i> Configuración de Reporte Diario
+            </h2>
+            <p class="text-xs text-gray-500 mb-4">Hora en la que se enviará de forma automática el correo con las reservas programadas para el día. (cada 30Min)</p>
+            
+            <div class="flex flex-col sm:flex-row items-end gap-4">
+                <div class="flex-grow">
+                    <label class="block text-gray-700 text-xs font-bold mb-1">Hora de Envío (Formatos de 24 hs):</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-regular fa-clock text-xs"></i>
+                        </span>
+                        <input type="time" id="config-hora-reporte" class="w-full border rounded-xl pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none" required>
+                    </div>
+                </div>
+                <button id="btn-guardar-hora" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md text-xs transition-all active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar Hora
+                </button>
+            </div>
+            <p id="txt-status-config" class="text-[10px] text-green-600 font-bold mt-2 hidden"><i class="fa-solid fa-circle-check"></i> Configuración guardada en la base de datos</p>
+        </div>
+ <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
                     <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i>Nuevo Recurso
                 </h2>
                 
@@ -64,14 +96,6 @@
                 </form>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-md">
-                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                    <i class="fa-solid fa-list text-blue-600 mr-1"></i>Equipos Registrados
-                </h2>
-                <div id="lista-inventario" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                    <p class="text-center text-gray-500 py-4">Cargando inventario...</p>
-                </div>
-            </div>
         </section>
 
         <!-- SECCIÓN DE ADMINISTRADORES / AUXILIARES (NUEVA) -->

@@ -1,6 +1,6 @@
 // enviar-resumen.js
-const { initializeApp, cert } = require('firebase-admin/app'); // <-- Nueva sintaxis de Firebase Admin
-const { getDatabase } = require('firebase-admin/database');    // <-- Nueva sintaxis de Firebase Admin
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getDatabase } = require('firebase-admin/database');
 const nodemailer = require('nodemailer');
 
 // Inicializamos Firebase con las credenciales seguras de GitHub
@@ -11,18 +11,18 @@ initializeApp({
   databaseURL: "https://reservasisd-default-rtdb.firebaseio.com/"
 });
 
-const db = getDatabase(); // <-- Ahora obtenemos la base de datos de esta forma
+const db = getDatabase();
 
 // Configuración del transporte SMTP con tu cuenta de Google
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER, // Tu correo de origen (ej: tu-cuenta@institutosandiego.edu.ar)
-    pass: process.env.SMTP_PASS  // La contraseña de aplicación de 16 letras que generaste en Google
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
   }
 });
 
-// Función para obtener la lista de correos que tienen "recibe_reporte: true" en Firebase
+// Obtener destinatarios autorizados
 async function obtenerDestinatariosReporte() {
   const ref = db.ref('usuarios_autorizados');
   const snapshot = await ref.once('value');
@@ -44,20 +44,69 @@ async function obtenerDestinatariosReporte() {
   return [...new Set(correos)];
 }
 
-function obtenerFechaArgentina() {
+// Devuelve un objeto Date ajustado a la zona horaria de Argentina
+function obtenerFechaYHoraArgentina() {
   const d = new Date();
   const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-  const argDate = new Date(utc + (3600000 * -3));
+  return new Date(utc + (3600000 * -3));
+}
 
-  const offsetYear = argDate.getFullYear();
-  const offsetMonth = String(argDate.getMonth() + 1).padStart(2, '0');
-  const offsetDay = String(argDate.getDate()).padStart(2, '0');
+// Nueva función para verificar si coincide la hora actual con la de Firebase
+async function verificarHoraDeEnvio() {
+  try {
+    const configRef = db.ref('configuraciones/hora_reporte');
+    const snapshot = await configRef.once('value');
+    
+    // Si no existe configuración en la DB, por defecto es a las "08:00"
+    const horaConfigurada = snapshot.exists() ? snapshot.val() : "08:00"; 
+    
+    const fechaArg = obtenerFechaYHoraArgentina();
+    const horaActual = String(fechaArg.getHours()).padStart(2, '0');
+    
+    // Redondeamos los minutos a bloques de 30 para coincidir con la frecuencia del Cron de GitHub
+    const minutos = fechaArg.getMinutes();
+    let minutosAlineados = "00";
+    if (minutos >= 15 && minutos < 45) {
+      minutosAlineados = "30";
+    } else if (minutos >= 45) {
+      // Si son más de las XX:45, consideramos que está más cerca de la siguiente hora
+      const siguienteHora = String((fechaArg.getHours() + 1) % 24).padStart(2, '0');
+      const horaFormateadaSiguiente = `${siguienteHora}:00`;
+      
+      console.log(`⏰ Hora actual: ${horaActual}:${String(minutos).padStart(2, '0')} | Buscando coincidencia con: ${horaConfigurada}`);
+      return horaFormateadaSiguiente === horaConfigurada;
+    }
 
-  return `${offsetYear}-${offsetMonth}-${offsetDay}`;
+    const horaActualString = `${horaActual}:${minutosAlineados}`;
+
+    console.log(`⏰ Hora actual (redondeada): ${horaActualString} | Hora programada en DB: ${horaConfigurada}`);
+    
+    // Retorna true si coinciden (ej: "08:30" === "08:30")
+    return horaActualString === horaConfigurada;
+
+  } catch (error) {
+    console.error("❌ Error al verificar la hora en Firebase:", error);
+    return false; // Ante la duda, no enviamos para evitar spam
+  }
 }
 
 async function generarYEnviarReporte() {
-  const fechaHoy = obtenerFechaArgentina();
+  // 1. VERIFICAR SI ES EL MOMENTO CORRECTO DE ENVIAR
+  const esHoraDeEnvio = await verificarHoraDeEnvio();
+  if (!esHoraDeEnvio) {
+    console.log("⏸️ No es la hora configurada para el envío. El script finaliza pacíficamente.");
+    process.exit(0);
+  }
+
+  console.log("🚀 ¡Hora coincidente! Iniciando generación de reporte diario...");
+
+  const fechaArg = obtenerFechaYHoraArgentina();
+  const offsetYear = fechaArg.getFullYear();
+  const offsetMonth = String(fechaArg.getMonth() + 1).padStart(2, '0');
+  const offsetDay = String(fechaArg.getDate()).padStart(2, '0');
+  const fechaHoy = `${offsetYear}-${offsetMonth}-${offsetDay}`;
+
+  const fechaAmigable = `${offsetDay}-${offsetMonth}-${offsetYear}`; // Formato DD-MM-YYYY para el contenido
   const reservasRef = db.ref('reservas');
   
   try {
@@ -101,7 +150,7 @@ async function generarYEnviarReporte() {
     let contenidoHtml = '';
     if (hayReservas) {
       contenidoHtml = `
-        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
+        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaAmigable}</h2>
         <p style="font-family: sans-serif; color: #374151;"> 👋 Hola, les dejamos el resumen de los recursos reservados para el día de hoy:</p>
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
           <thead>
@@ -118,18 +167,17 @@ async function generarYEnviarReporte() {
       `;
     } else {
       contenidoHtml = `
-        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaHoy}</h2>
+        <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaAmigable}</h2>
         <p style="font-family: sans-serif; color: #374151;">👋 Hola. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>
       `;
     }
 
     console.log(`📧 Intentando enviar reporte diario a: [${destinatarios.join(', ')}]`);
 
-    // 3. Enviar el correo usando Nodemailer (SMTP directo de Google)
     const info = await transporter.sendMail({
       from: `"Reservas ISD" <${process.env.SMTP_USER}>`, 
-      to: destinatarios.join(', '), // Nodemailer acepta los correos separados por comas en un solo string
-      subject: `☀️ Reservas del Día - ${fechaHoy}`,
+      to: destinatarios.join(', '), 
+      subject: `☀️ Reservas del Día - ${fechaAmigable}`, // <-- CAMBIADO A FECHA AMIGABLE (DD-MM-YYYY)
       html: contenidoHtml
     });
 
