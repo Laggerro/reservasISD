@@ -400,14 +400,16 @@ window.eliminarProfesor = async function(emailLimpio, nombreProfe) {
 // 1. Leer la hora guardada en Firebase y rellenar el input
 async function cargarConfiguracionHora() {
     try {
-        const dbRef = ref(db);
-        // Buscamos en el nodo configuraciones/hora_reporte
-        const snapshot = await get(child(dbRef, 'configuraciones/hora_reporte'));
+        // En Firebase Web, podemos apuntar directo al nodo usando ref(db, 'ruta')
+        const configRef = ref(db, 'configuracion/hora_reporte');
+        const snapshot = await get(configRef);
         
         if (snapshot.exists()) {
             configHoraReporte.value = snapshot.val();
+            console.log("Hora de reporte cargada desde la BD:", snapshot.val());
         } else {
             configHoraReporte.value = "08:00"; // Hora por defecto si no hay nada guardado
+            console.log("No se encontró hora configurada. Se estableció 08:00 por defecto.");
         }
     } catch (error) {
         console.error("Error al cargar la hora del reporte:", error);
@@ -427,7 +429,7 @@ btnGuardarHora.addEventListener('click', async () => {
         btnGuardarHora.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Guardando...`;
 
         // Guardamos directamente en el nodo principal de configuración
-        const horaRef = ref(db, 'configuraciones/hora_reporte');
+        const horaRef = ref(db, 'configuracion/hora_reporte');
         await set(horaRef, nuevaHora);
 
         // Mostrar aviso visual de éxito efímero

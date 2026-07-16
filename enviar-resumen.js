@@ -54,7 +54,7 @@ function obtenerFechaYHoraArgentina() {
 // Nueva función para verificar si coincide la hora actual con la de Firebase
 async function verificarHoraDeEnvio() {
   try {
-    const configRef = db.ref('configuraciones/hora_reporte');
+    const configRef = db.ref('configuracion/hora_reporte');
     const snapshot = await configRef.once('value');
     
     // Si no existe configuración en la DB, por defecto es a las "08:00"
