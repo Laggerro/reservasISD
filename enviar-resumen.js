@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT); 
 initializeApp({ 
   credential: cert(serviceAccount), 
-  databaseURL: "https://firebaseio.com" 
+  databaseURL: "https://reservasisd-default-rtdb.firebaseio.com/"
 }); 
 
 const db = getDatabase(); 
