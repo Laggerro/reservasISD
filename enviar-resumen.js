@@ -44,30 +44,18 @@ async function obtenerDestinatariosReporte() {
 }
 
 // Devuelve la fecha y hora de Argentina garantizada usando el estándar internacional
+// Devuelve la fecha y hora de Argentina garantizada matemáticamente (UTC-3)
 function obtenerFechaYHoraArgentina() {
-  const d = new Date();
-  
-  const opciones = {
-    timeZone: 'America/Argentina/Buenos_Aires',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false
-  };
-  
-  const formateador = new Intl.DateTimeFormat('es-AR', opciones);
-  const partes = formateador.formatToParts(d);
-  
-  const dic = {};
-  partes.forEach(({type, value}) => { dic[type] = value; });
-  
-  return new Date(
-    Number(dic.year),
-    Number(dic.month) - 1,
-    Number(dic.day),
-    Number(dic.hour),
-    Number(dic.minute),
-    Number(dic.second)
-  );
+    const d = new Date();
+    
+    // Obtenemos el tiempo en milisegundos UTC
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    
+    // Le restamos 3 horas (Argentina es UTC-3 siempre, no tiene cambio de hora de verano)
+    const offsetArgentina = -3;
+    const fechaArgentina = new Date(utc + (3600000 * offsetArgentina));
+    
+    return fechaArgentina;
 }
 
 // Verifica si la hora actual está dentro de la ventana de 30 minutos de algún horario programado
