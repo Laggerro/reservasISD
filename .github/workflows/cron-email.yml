@@ -2,30 +2,30 @@ name: Enviar Reporte Diario de Reservas
 
 on:
   schedule:
-    # Corre automáticamente cada 30 minutos de Lunes a Viernes
+    # Corre automáticamente cada 30 minutos de Lunes a Viernes 
     # entre las 06:00 AM y las 21:30 PM hora de Argentina (09:00 a 00:30 UTC)
     - cron: '0,30 9-23 * * 1-5'
-  workflow_dispatch: # Permite ejecutar el flujo manualmente desde la pestaña Actions
+  workflow_dispatch:
+    # Permite ejecutar el flujo manualmente desde la pestaña Actions
 
 jobs:
   enviar-reporte:
     runs-on: ubuntu-latest
-
     steps:
       # 1. Descargar el código del repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Configurar el entorno de Node.js
+      # 2. Configurar el entorno de Node.js en su versión moderna
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
-      # 3. Instalar las dependencias de Firebase Admin y Nodemailer
+      # 3. Instalar las dependencias (Incluyendo el módulo faltante de Firebase)
       - name: Install dependencies
         run: |
-          npm install firebase-admin nodemailer
+          npm install firebase-admin nodemailer @firebase/app
 
       # 4. Ejecutar el script cargando de forma segura las variables de entorno
       - name: Run script
