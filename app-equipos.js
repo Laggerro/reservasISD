@@ -24,7 +24,7 @@ const nombreDocenteHtml = document.getElementById('nombre-docente');
 const botonAjustes = document.getElementById('boton-ajustes');
 const btnLogout = document.getElementById('btn-logout');
 const tarjeteroRecursos = document.getElementById('tarjetero-recursos');
-const botonCalendario = document.getElementById('boton-calendario'); 
+const botonCalendario = document.getElementById('boton-calendario');
 
 
 
@@ -37,11 +37,11 @@ onAuthStateChanged(auth, async (user) => {
         // 1. EXCEPCIÓN DIRECTA: Tu mail personal siempre entra de una (llave maestra)
         if (email === 'laggerro2@gmail.com') {
             nombreDocenteHtml.textContent = `👋 Hola, ${user.displayName || 'Administrador'}`;
-            
+
             // Mostramos ambos botones de administración
-            if (botonAjustes) botonAjustes.classList.remove('hidden'); 
+            if (botonAjustes) botonAjustes.classList.remove('hidden');
             if (botonCalendario) botonCalendario.classList.remove('hidden'); // <-- NUEVO
-            
+
             appBody.classList.remove('invisible');
             escucharInventario();
             return;
@@ -114,9 +114,9 @@ function escucharInventario() {
                 // Configuración de Estados Visuales
                 const colorBorde = tieneStock ? 'border-green-400' : 'border-red-400 bg-red-50';
                 const badgeColor = tieneStock ? 'bg-green-100 text-green-800' : 'bg-red-200 text-red-900 font-bold';
-                
+
                 // CAMBIO: Ahora dice "PAUSADO" en lugar de "AGOTADO HOY"
-                const badgeTexto = tieneStock ? `Cantidad: ${stock}` : 'PAUSADO'; 
+                const badgeTexto = tieneStock ? `Cantidad: ${stock}` : 'PAUSADO';
                 const filtroImagen = tieneStock ? 'opacity-100' : 'opacity-30 grayscale';
 
                 // --- CAMBIO CLAVE: LEER DIRECTO DE FIREBASE O COLOCAR UN MOCK UP POR SI ESTÁ VACÍO ---
@@ -159,8 +159,8 @@ function escucharInventario() {
                             ${!tieneStock ? 'disabled' : ''}
                             class="w-full py-3 px-4 rounded-xl font-bold text-center transition-all text-base shadow-sm
                             ${tieneStock
-                                ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'}"
                         >
                             ${tieneStock ? 'Reservar este recurso' : 'En uso o en Reparación'}
                         </button>
@@ -201,3 +201,4 @@ btnLogout.addEventListener('click', desconectarSesion);
 botonAjustes.addEventListener('click', () => {
     window.location.href = "ajustes.html";
 });
+

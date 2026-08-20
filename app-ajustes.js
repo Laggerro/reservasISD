@@ -18,17 +18,25 @@ const db = getDatabase(app);
 const configHoraReporte = document.getElementById('config-hora-reporte');
 const btnGuardarHora = document.getElementById('btn-guardar-hora');
 const txtStatusConfig = document.getElementById('txt-status-config');
+const selectIntentos = document.getElementById('select-intentos-acceso');
 
 
 // ==========================================
-// 🔑 CLAVE DE API DE IMGBB (Pegá acá tu clave)
+// CLAVE DE API DE IMGBB
 // ==========================================
-const IMGBB_API_KEY = "85fceaf48792a118d9543ddc94c116ab"; 
+const IMGBB_API_KEY = "85fceaf48792a118d9543ddc94c116ab";
 
 // ELEMENTOS DEL DOM
 const formNuevo = document.getElementById('form-nuevo-recurso');
 const listaInventario = document.getElementById('lista-inventario');
 const btnVolver = document.getElementById('btn-volver');
+
+
+const selectIntentos = document.getElementById('select-intentos-acceso');
+const formNuevoProfesor = document.getElementById('form-nuevo-profesor');
+const inputNombre = document.getElementById('profe-nombre');
+const inputEmail = document.getElementById('profe-email');
+
 
 // NUEVOS ELEMENTOS DEL DOM PARA ADMINS
 const formNuevoAdmin = document.getElementById('form-nuevo-admin');
@@ -45,7 +53,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     const email = user.email;
-    // EXCEPCIÓN DIRECTA: Si sos vos, entrás de una
+    // EXCEPCIÓN DIRECTA: 
     if (email === "laggerro2@gmail.com") {
         inicializarPanel();
         return;
@@ -72,6 +80,7 @@ function inicializarPanel() {
     escucharYListarEquipos();
     escucharYListarAdmins();
     escucharYListarProfesores();
+    escucharYListarIntentosAcceso(); // <-- AGREGAR ESTA LÍNEA
     cargarConfiguracionHora();
 }
 
@@ -87,7 +96,7 @@ formNuevo.addEventListener('submit', async (e) => {
     const cantidad = parseInt(document.getElementById('recurso-cantidad').value);
     const descripcion = document.getElementById('recurso-descripcion').value.trim();
     const inputImagen = document.getElementById('recurso-imagen').files[0];
-    
+
     const idRecurso = nombre.toLowerCase()
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/(^_|_$)/g, '');
@@ -117,7 +126,7 @@ formNuevo.addEventListener('submit', async (e) => {
             console.log("Imagen subida con éxito: ", urlFinalImagen);
         }
 
-        // 2. Registro directo en tu Firebase RTDB
+        // 2. Registro directo en Firebase RTDB
         const recursoRef = ref(db, `inventario/${categoria}/${idRecurso}`);
         await set(recursoRef, {
             nombre: nombre,
@@ -134,9 +143,8 @@ formNuevo.addEventListener('submit', async (e) => {
     }
 });
 
-// LISTAR EQUIPOS
 
-// LISTAR EQUIPOS EN AJUSTES.JS (Con editor de stock rápido)
+// LISTAR EQUIPOS EN AJUSTES.JS
 function escucharYListarEquipos() {
     const inventarioRef = ref(db, 'inventario');
     onValue(inventarioRef, (snapshot) => {
@@ -182,7 +190,7 @@ function escucharYListarEquipos() {
 }
 
 // NUEVA FUNCIÓN GLOBAL PARA ACTUALIZAR EL STOCK EN LA DB
-window.cambiarStock = async function(categoria, idRecurso, stockActual, cambio) {
+window.cambiarStock = async function (categoria, idRecurso, stockActual, cambio) {
     const nuevoStock = stockActual + cambio;
     if (nuevoStock < 0) return; // Evitamos stock negativo
 
@@ -198,7 +206,7 @@ window.cambiarStock = async function(categoria, idRecurso, stockActual, cambio) 
 };
 
 // ELIMINAR RECURSO
-window.eliminarRecurso = async function(categoria, idRecurso) {
+window.eliminarRecurso = async function (categoria, idRecurso) {
     const confirmar = confirm("¿Estás seguro de que querés eliminar este recurso del inventario de forma permanente? Se perderán sus datos de stock.");
     if (confirmar) {
         try {
@@ -213,7 +221,7 @@ window.eliminarRecurso = async function(categoria, idRecurso) {
 };
 
 // ======================================================
-// MÓDULO B: CONTROL DE ADMINISTRADORES (NUEVO)
+// MÓDULO B: CONTROL DE ADMINISTRADORES 
 // ======================================================
 
 // AGREGAR NUEVO ADMINISTRADOR
@@ -274,7 +282,7 @@ function escucharYListarAdmins() {
 }
 
 // BORRAR ADMINISTRADOR
-window.eliminarAdmin = async function(emailLimpio, nombreAdmin) {
+window.eliminarAdmin = async function (emailLimpio, nombreAdmin) {
     const confirmar = confirm(`¿Estás seguro de que querés retirarle los permisos de administrador a "${nombreAdmin}"?\nEsta cuenta ya no podrá acceder a este panel de ajustes ni ver el botón de configuración.`);
     if (confirmar) {
         try {
@@ -293,30 +301,91 @@ btnVolver.addEventListener('click', () => {
     window.location.href = "equipos.html";
 });
 
-// ======================================================
-// MÓDULO C: CONTROL DE PROFESORES (LISTA BLANCA)
-// ======================================================
+// ==========================================
+// MÓDULO C: CONTROL DE PROFESORES
+// ==========================================
 
 // REGISTRAR PROFESOR EN LA LISTA BLANCA
-formNuevoProfesor.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nombre = document.getElementById('profe-nombre').value.trim();
-    const email = document.getElementById('profe-email').value.trim().toLowerCase();
-    const emailLimpio = email.replace(/\./g, '_');
-    try {
-        const profeRef = ref(db, `usuarios_autorizados/${emailLimpio}`);
-        await set(profeRef, {
-            nombre: nombre,
-            email: email,
-            recibe_reporte: false // Por defecto se crea sin recibir reportes
-        });
-        alert(`El docente ${nombre} ha sido agregado a la lista autorizada.`);
-        formNuevoProfesor.reset();
-    } catch (error) {
-        console.error("Error al registrar profesor:", error);
-        alert("Ocurrió un error al guardar el docente.");
+// ==========================================
+// MÓDULO C: CONTROL DE INTENTOS Y PROFESORES
+// ==========================================
+
+// 1. Escuchar la base de datos y llenar el desplegable
+export function escucharYListarIntentosAcceso() {
+    if (!selectIntentos) {
+        console.error("No se encontró el elemento #select-intentos-acceso en el DOM");
+        return;
     }
-});
+
+    const intentosRef = ref(db, 'intentos_acceso');
+
+    onValue(intentosRef, (snapshot) => {
+        selectIntentos.innerHTML = '<option value="">-- Seleccionar usuario no autorizado --</option>';
+        const intentos = snapshot.val();
+
+        if (intentos) {
+            Object.keys(intentos).forEach(key => {
+                const item = intentos[key];
+                const option = document.createElement('option');
+                option.value = key;
+
+                // Mapeo seguro según la estructura de Firebase
+                const email = item.email || '';
+                const nombre = item.nombre || item.email || 'Sin nombre';
+
+                option.dataset.email = email;
+                option.dataset.nombre = nombre;
+                option.textContent = `${nombre} (${email})`;
+
+                selectIntentos.appendChild(option);
+            });
+        }
+    }, (error) => {
+        console.error("Error al leer intentos_acceso (Verificar Reglas de Firebase):", error);
+    });
+}
+
+// 2. Autocompletar los inputs al seleccionar un mail del desplegable
+if (selectIntentos) {
+    selectIntentos.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        if (selectedOption && selectedOption.value !== "") {
+            inputNombre.value = selectedOption.dataset.nombre || '';
+            inputEmail.value = selectedOption.dataset.email || '';
+        } else {
+            inputNombre.value = '';
+            inputEmail.value = '';
+        }
+    });
+}
+
+// 3. Formulario para Autorizar y mover de "intentos_acceso" a "usuarios_autorizados"
+if (formNuevoProfesor) {
+    formNuevoProfesor.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombre = inputNombre.value.trim();
+        const email = inputEmail.value.trim().toLowerCase();
+        const emailLimpio = email.replace(/\./g, '_');
+
+        try {
+            // Guardar en usuarios_autorizados
+            await set(ref(db, `usuarios_autorizados/${emailLimpio}`), {
+                nombre: nombre,
+                email: email,
+                recibe_reporte: false
+            });
+
+            // Eliminar de intentos_acceso
+            await remove(ref(db, `intentos_acceso/${emailLimpio}`));
+
+            alert(`El docente ${nombre} ha sido autorizado correctamente.`);
+            formNuevoProfesor.reset();
+        } catch (error) {
+            console.error("Error al autorizar profesor:", error);
+            alert("Error al guardar en la base de datos.");
+        }
+    });
+}
 
 // ESCUCHAR Y LISTAR PROFESORES
 function escucharYListarProfesores() {
@@ -336,7 +405,7 @@ function escucharYListarProfesores() {
                 : `<button onclick="eliminarProfesor('${key}', '${profe.nombre}')" class="text-red-500 hover:text-red-700 p-2 transition">
                        <i class="fa-solid fa-user-slash"></i>
                    </button>`;
-            
+
             const itemHTML = `
             <div class="flex items-center justify-between p-3 bg-gray-50 border rounded-xl hover:shadow-sm transition-all mb-2">
                 <div class="flex items-center gap-3">
@@ -378,7 +447,7 @@ function escucharYListarProfesores() {
 }
 
 // QUITAR PROFESOR DE LA LISTA BLANCA
-window.eliminarProfesor = async function(emailLimpio, nombreProfe) {
+window.eliminarProfesor = async function (emailLimpio, nombreProfe) {
     const confirmar = confirm(`¿Estás seguro de que querés REVOCAR el acceso a "${nombreProfe}"?\nSi lo hacés, perderá la capacidad de iniciar sesión de forma inmediata.`);
     if (confirmar) {
         try {
@@ -401,15 +470,15 @@ window.eliminarProfesor = async function(emailLimpio, nombreProfe) {
 // 1. Leer la hora guardada en Firebase y rellenar el input
 async function cargarConfiguracionHora() {
     try {
-        // En Firebase Web, podemos apuntar directo al nodo usando ref(db, 'ruta')
+
         const configRef = ref(db, 'configuracion/hora_reporte');
         const snapshot = await get(configRef);
-        
+
         if (snapshot.exists()) {
             configHoraReporte.value = snapshot.val();
             console.log("Hora de reporte cargada desde la BD:", snapshot.val());
         } else {
-            configHoraReporte.value = "08:00"; // Hora por defecto si no hay nada guardado
+            configHoraReporte.value = "08:00"; // Hora por defecto 
             console.log("No se encontró hora configurada. Se estableció 08:00 por defecto.");
         }
     } catch (error) {
@@ -418,10 +487,8 @@ async function cargarConfiguracionHora() {
 }
 
 // 2. Guardar la nueva hora seleccionada por el Administrador
-// Guardar la nueva hora seleccionada por el Administrador
 btnGuardarHora.addEventListener('click', async (e) => {
-    e.preventDefault(); // Evita recargas extrañas
-
+    e.preventDefault(); // Evita recargas 
     const nuevaHora = configHoraReporte.value.trim();
     if (!nuevaHora) {
         alert("Por favor, ingresá al menos un horario válido.");
@@ -432,7 +499,7 @@ btnGuardarHora.addEventListener('click', async (e) => {
         btnGuardarHora.disabled = true;
         btnGuardarHora.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Guardando...`;
 
-        // Guardamos directamente en el nodo de configuración
+        // directamente al nodo de configuración
         const horaRef = ref(db, 'configuracion/hora_reporte');
         await set(horaRef, nuevaHora);
 
@@ -443,7 +510,7 @@ btnGuardarHora.addEventListener('click', async (e) => {
                 txtStatusConfig.classList.add('hidden');
             }, 3000);
         } else {
-            // Si no existe el elemento visual de éxito, mostramos un alert simple
+            // Si no existe el elemento mostrar un alert simple
             alert("¡Horarios guardados con éxito!");
         }
 

@@ -130,6 +130,16 @@
 
                 <form id="form-nuevo-profesor">
                     <div class="mb-4">
+                        <label class="block text-gray-700 text-xs font-bold mb-1">
+                            <i class="fa-solid fa-user-clock text-amber-500 mr-1"></i>Solicitudes de Acceso Pendientes:
+                        </label>
+                        <select id="select-intentos-acceso"
+                            class="w-full border rounded-xl px-3 py-2 text-sm bg-amber-50 border-amber-300 focus:ring-2 focus:ring-amber-500">
+                            <option value="">-- Seleccionar usuario no autorizado --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="block text-gray-700 text-xs font-bold mb-1">Nombre del Docente:</label>
                         <input type="text" id="profe-nombre" class="w-full border rounded-xl px-3 py-2 text-sm"
                             placeholder="Ej: Prof. María Giménez" required>
