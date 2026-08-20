@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario de Reservas - ISd</title>
     <!-- Tailwind CSS -->
-     <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -78,81 +78,92 @@
         <!-- Script de lógica -->
         <script type="module" src="calendario-general.js"></script>
         <!-- MODAL DE DETALLE DE RESERVA -->
-    <div id="modal-detalle" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform scale-95 transition-transform duration-300" id="modal-contenido">
-            
-            <!-- Cabecera del Modal (Color dinámico según la categoría) -->
-            <div id="modal-header" class="p-4 text-white flex justify-between items-center bg-blue-600">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-circle-info"></i> Detalle de la Reserva
-                </h3>
-                <button id="btn-cerrar-modal" class="text-white/80 hover:text-white text-xl font-bold p-1 transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <!-- Cuerpo del Modal -->
-            <div class="p-6 flex flex-col gap-4">
-                
-                <!-- Equipo -->
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 shrink-0 mt-0.5">
-                        <i class="fa-solid fa-laptop"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Equipo / Recurso</p>
-                        <p id="modal-recurso" class="text-sm font-bold text-gray-800">-</p>
-                    </div>
+        <div id="modal-detalle"
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform scale-95 transition-transform duration-300"
+                id="modal-contenido">
+
+                <!-- Cabecera del Modal (Color dinámico según la categoría) -->
+                <div id="modal-header" class="p-4 text-white flex justify-between items-center bg-blue-600">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Detalle de la Reserva
+                    </h3>
+                    <button id="btn-cerrar-modal"
+                        class="text-white/80 hover:text-white text-xl font-bold p-1 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <!-- Docente -->
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-green-600 shrink-0 mt-0.5">
-                        <i class="fa-solid fa-user-tie"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Reservado Por</p>
-                        <p id="modal-docente" class="text-sm font-bold text-gray-800">-</p>
-                        <p id="modal-docente-email" class="text-xs text-gray-500">-</p>
-                    </div>
-                </div>
+                <!-- Cuerpo del Modal -->
+                <div class="p-6 flex flex-col gap-4">
 
-                <!-- Horarios -->
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
-                        <i class="fa-solid fa-clock"></i>
+                    <!-- Equipo -->
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 shrink-0 mt-0.5">
+                            <i class="fa-solid fa-laptop"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Equipo / Recurso</p>
+                            <p id="modal-recurso" class="text-sm font-bold text-gray-800">-</p>
+                        </div>
                     </div>
-                    <div class="w-full">
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Horario de Reserva</p>
-                        <div class="grid grid-cols-2 gap-2 mt-1">
-                            <div class="bg-gray-50 p-2 rounded-lg border">
-                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Desde</span>
-                                <span id="modal-hora-inicio" class="text-xs font-semibold text-gray-700">-</span>
-                            </div>
-                            <div class="bg-gray-50 p-2 rounded-lg border">
-                                <span class="text-[10px] text-gray-400 font-bold block uppercase">Hasta</span>
-                                <span id="modal-hora-fin" class="text-xs font-semibold text-gray-700">-</span>
+
+                    <!-- Docente -->
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-green-600 shrink-0 mt-0.5">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Reservado Por</p>
+                            <p id="modal-docente" class="text-sm font-bold text-gray-800">-</p>
+                            <p id="modal-docente-email" class="text-xs text-gray-500">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Horarios -->
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="w-full">
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Horario de Reserva</p>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="bg-gray-50 p-2 rounded-lg border">
+                                    <span class="text-[10px] text-gray-400 font-bold block uppercase">Desde</span>
+                                    <span id="modal-hora-inicio" class="text-xs font-semibold text-gray-700">-</span>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded-lg border">
+                                    <span class="text-[10px] text-gray-400 font-bold block uppercase">Hasta</span>
+                                    <span id="modal-hora-fin" class="text-xs font-semibold text-gray-700">-</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Fecha de Registro/Creación -->
+                    <div class="text-right mt-2">
+                        <p id="modal-fecha-registro" class="text-[10px] text-gray-400 italic">Registrado el: -</p>
+                    </div>
+
                 </div>
 
-                <!-- Fecha de Registro/Creación -->
-                <div class="text-right mt-2">
-                    <p id="modal-fecha-registro" class="text-[10px] text-gray-400 italic">Registrado el: -</p>
+                <!-- Botón de Acción Inferior -->
+                <div class="bg-gray-50 px-6 py-4 flex justify-end border-t">
+                    <button id="btn-entendido"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition shadow-sm">
+                        Entendido
+                    </button>
                 </div>
-
-            </div>
-
-            <!-- Botón de Acción Inferior -->
-            <div class="bg-gray-50 px-6 py-4 flex justify-end border-t">
-                <button id="btn-entendido" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition shadow-sm">
-                    Entendido
-                </button>
             </div>
         </div>
     </div>
-    </div>
+    <footer
+        class="fixed bottom-0 left-0 w-full bg-gray-300 text-black text-center py-2 text-xs font-semibold shadow-inner z-50">
+        by Laggersoft - 2026
+    </footer>
 </body>
 
 </html>
