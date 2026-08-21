@@ -18,7 +18,8 @@ const db = getDatabase(app);
 const configHoraReporte = document.getElementById('config-hora-reporte');
 const btnGuardarHora = document.getElementById('btn-guardar-hora');
 const txtStatusConfig = document.getElementById('txt-status-config');
-const selectIntentos = document.getElementById('select-intentos-acceso');
+const btnBorrarIntentos = document.getElementById('btn-borrar-intentos');
+//const selectIntentos = document.getElementById('select-intentos-acceso');
 
 
 // ==========================================
@@ -33,7 +34,7 @@ const btnVolver = document.getElementById('btn-volver');
 
 
 const selectIntentos = document.getElementById('select-intentos-acceso');
-const formNuevoProfesor = document.getElementById('form-nuevo-profesor');
+//const formNuevoProfesor = document.getElementById('form-nuevo-profesor');
 const inputNombre = document.getElementById('profe-nombre');
 const inputEmail = document.getElementById('profe-email');
 
@@ -302,11 +303,6 @@ btnVolver.addEventListener('click', () => {
 });
 
 // ==========================================
-// MÓDULO C: CONTROL DE PROFESORES
-// ==========================================
-
-// REGISTRAR PROFESOR EN LA LISTA BLANCA
-// ==========================================
 // MÓDULO C: CONTROL DE INTENTOS Y PROFESORES
 // ==========================================
 
@@ -462,6 +458,23 @@ window.eliminarProfesor = async function (emailLimpio, nombreProfe) {
         }
     }
 };
+// Borrar la lista completa de intentos de acceso
+if (btnBorrarIntentos) {
+    btnBorrarIntentos.addEventListener('click', async () => {
+        const confirmacion = confirm("¿Estás seguro de que querés borrar TODAS las solicitudes de acceso pendientes?\nEsta acción no se puede deshacer.");
+        if (confirmacion) {
+            try {
+                await remove(ref(db, 'intentos_acceso'));
+                alert("La lista de solicitudes pendientes ha sido eliminada.");
+                inputNombre.value = '';
+                inputEmail.value = '';
+            } catch (error) {
+                console.error("Error al borrar solicitudes pendientes:", error);
+                alert("Ocurrió un error al intentar borrar la lista.");
+            }
+        }
+    });
+}
 
 // ==========================================
 // MÓDULO D: CONFIGURACIÓN GENERAL DEL REPORTE
