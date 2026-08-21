@@ -443,21 +443,28 @@ function escucharYListarProfesores() {
 }
 
 // QUITAR PROFESOR DE LA LISTA BLANCA
+
 window.eliminarProfesor = async function (emailLimpio, nombreProfe) {
-    const confirmar = confirm(`¿Estás seguro de que querés REVOCAR el acceso a "${nombreProfe}"?\nSi lo hacés, perderá la capacidad de iniciar sesión de forma inmediata.`);
-    if (confirmar) {
-        try {
-            const profeRef = ref(db, `usuarios_autorizados/${emailLimpio}`);
-            await remove(profeRef);
-            const adminRef = ref(db, `administradores/${emailLimpio}`);
-            await remove(adminRef);
-            alert(`Acceso revocado con éxito para ${nombreProfe}.`);
-        } catch (error) {
-            console.error("Error al revocar acceso:", error);
-            alert("No se pudo completar la operación.");
-        }
+  const confirmar = confirm(`¿Estás seguro de que querés REVOCAR el acceso a "${nombreProfe}"?`);
+  if (confirmar) {
+    try {
+      // 1. Quitar de usuarios autorizados
+      await remove(ref(db, `usuarios_autorizados/${emailLimpio}`));
+      
+      // 2. Si existía en administradores, removerlo también
+      const adminSnap = await get(ref(db, `administradores/${emailLimpio}`));
+      if (adminSnap.exists()) {
+        await remove(ref(db, `administradores/${emailLimpio}`));
+      }
+
+      alert(`Acceso revocado con éxito para ${nombreProfe}.`);
+    } catch (error) {
+      console.error("Error al revocar acceso:", error);
+      alert("No se pudo completar la operación.");
     }
+  }
 };
+
 // Borrar la lista completa de intentos de acceso
 if (btnBorrarIntentos) {
     btnBorrarIntentos.addEventListener('click', async () => {
