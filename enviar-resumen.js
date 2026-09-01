@@ -97,10 +97,13 @@ async function verificarHoraDeEnvio(esManual) {
       const minutosConfigTotales = hConfig * 60 + mConfig;
 
       // Margen de 30 minutos desde la hora programada
-      if (minutosActualesTotales >= minutosConfigTotales && minutosActualesTotales < minutosConfigTotales + 30) {
-        console.log(`🎯 ¡Coincidencia! La hora actual está en el rango de envío de las ${horaStr}.`);
-        return true;
-      }
+     // Reemplaza esta sección en verificarHoraDeEnvio:
+
+// Margen de 45 minutos desde la hora programada para tolerar demoras de GitHub Actions
+if (minutosActualesTotales >= minutosConfigTotales && minutosActualesTotales < minutosConfigTotales + 45) {
+  console.log(`🎯 ¡Coincidencia! La hora actual está en el rango de envío de las ${horaStr}.`);
+  return true;
+}
     }
     console.log("⏸️ Ningún horario programado coincide con el rango de tiempo actual.");
     return false;
