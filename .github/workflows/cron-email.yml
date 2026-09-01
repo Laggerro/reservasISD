@@ -2,8 +2,9 @@ name: Enviar Reporte Diario de Reservas
 
 on:
   schedule:
-    # Corre cada 30 minutos de Lunes a Viernes entre las 06:00 y las 21:30 de Argentina (09:00 a 00:30 UTC)
-    - cron: '0,30 9-23 * * 1-5'
+    # 07:00 a 20:30 ART (10:00 a 23:30 UTC) -> Lunes a Viernes
+    - cron: '0,30 10-23 * * 1-5'
+    # 21:00 ART (00:00 UTC del día siguiente) -> Martes a Sábado UTC
     - cron: '0,30 0 * * 2-6'
   workflow_dispatch:
 
@@ -17,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
 
       - name: Install dependencies
         run: |
