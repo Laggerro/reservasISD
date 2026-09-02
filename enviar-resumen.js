@@ -23,9 +23,11 @@ async function obtenerDestinatariosReporte() {
   const ref = db.ref('usuarios_autorizados');
   const snapshot = await ref.once('value');
   const correos = [];
+  
   if (process.env.EMAIL_DESTINATARIO) {
     correos.push(process.env.EMAIL_DESTINATARIO.trim().toLowerCase());
   }
+  
   if (snapshot.exists()) {
     snapshot.forEach((childSnapshot) => {
       const usuario = childSnapshot.val();
@@ -37,17 +39,9 @@ async function obtenerDestinatariosReporte() {
   return [...new Set(correos)];
 }
 
-// Obtiene la hora y fecha formateadas en la zona horaria de Argentina
+// Obtiene la fecha formateada en la zona horaria de Argentina
 function obtenerDatosArgentina() {
   const ahora = new Date();
-
-  // Formateador para hora y minutos
-  const fmtHora = new Intl.DateTimeFormat('es-AR', {
-    timeZone: 'America/Argentina/Buenos_Aires',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
 
   // Formateador para fecha (AAAA-MM-DD)
   const fmtFecha = new Intl.DateTimeFormat('en-CA', {
@@ -57,72 +51,14 @@ function obtenerDatosArgentina() {
     day: '2-digit'
   });
 
-  const partesHora = fmtHora.formatToParts(ahora);
-  const hora = parseInt(partesHora.find(p => p.type === 'hour').value, 10);
-  const minutos = parseInt(partesHora.find(p => p.type === 'minute').value, 10);
-
   const fechaHoy = fmtFecha.format(ahora); // Devuelve YYYY-MM-DD
   const [year, month, day] = fechaHoy.split('-');
   const fechaAmigable = `${day}-${month}-${year}`;
 
-  return { hora, minutos, fechaHoy, fechaAmigable };
-}
-
-async function verificarHoraDeEnvio(esManual) {
-  try {
-    // Si la ejecución es manual (workflow_dispatch), forzamos el envío omitiendo el rango
-    if (esManual) {
-      console.log("⚡ Ejecución manual detectada. Omitiendo la validación de ventana horaria.");
-      return true;
-    }
-
-    const configRef = db.ref('configuracion/hora_reporte');
-    const snapshot = await configRef.once('value');
-
-    const valorFirebase = snapshot.exists() ? snapshot.val() : "08:00";
-    const horasConfiguradas = valorFirebase
-      .split(',')
-      .map(hora => hora.trim())
-      .filter(hora => hora.match(/^\d{2}:\d{2}$/));
-
-    const { hora: horaActual, minutos: minutosActuales } = obtenerDatosArgentina();
-
-    console.log(`⏰ Hora real actual en Argentina: ${String(horaActual).padStart(2, '0')}:${String(minutosActuales).padStart(2, '0')}`);
-    console.log(`📋 Horarios de envío configurados en la DB: [${horasConfiguradas.join(', ')}]`);
-
-    const minutosActualesTotales = horaActual * 60 + minutosActuales;
-
-    for (const horaStr of horasConfiguradas) {
-      const [hConfig, mConfig] = horaStr.split(':').map(Number);
-      const minutosConfigTotales = hConfig * 60 + mConfig;
-
-      // Margen de 30 minutos desde la hora programada
-     // Reemplaza esta sección en verificarHoraDeEnvio:
-
-// Margen de 45 minutos desde la hora programada para tolerar demoras de GitHub Actions
-if (minutosActualesTotales >= minutosConfigTotales && minutosActualesTotales < minutosConfigTotales + 45) {
-  console.log(`🎯 ¡Coincidencia! La hora actual está en el rango de envío de las ${horaStr}.`);
-  return true;
-}
-    }
-    console.log("⏸️ Ningún horario programado coincide con el rango de tiempo actual.");
-    return false;
-  } catch (error) {
-    console.error("❌ Error al verificar las horas en Firebase:", error);
-    return false;
-  }
+  return { fechaHoy, fechaAmigable };
 }
 
 async function generarYEnviarReporte() {
-  // Detecta si se ejecutó manualmente desde GitHub Actions mediante la variable de entorno
-  const esManual = process.env.GITHUB_EVENT_NAME === 'workflow_dispatch';
-
-  const esHoraDeEnvio = await verificarHoraDeEnvio(esManual);
-  if (!esHoraDeEnvio) {
-    console.log("⏸️ El script finaliza pacíficamente.");
-    process.exit(0);
-  }
-
   console.log("🚀 ¡Iniciando generación de reporte diario!");
   const { fechaHoy, fechaAmigable } = obtenerDatosArgentina();
   const reservasRef = db.ref('reservas');
