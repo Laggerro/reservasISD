@@ -2,10 +2,8 @@ name: Enviar Reporte Diario de Reservas
 
 on:
   schedule:
-    # 07:00 a 20:30 ART (10:00 a 23:30 UTC) -> Lunes a Viernes
-    - cron: '0,30 10-23 * * 1-5'
-    # 21:00 ART (00:00 UTC del día siguiente) -> Martes a Sábado UTC
-    - cron: '0,30 0 * * 2-6'
+    # Corre a las 07:37 ART (10:37 UTC) de Lunes a Viernes
+    - cron: '27 10 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -18,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: |
