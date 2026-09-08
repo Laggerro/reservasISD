@@ -3,7 +3,7 @@ name: Enviar Reporte Diario de Reservas
 on:
   schedule:
     # Corre a las 07:37 ART (10:37 UTC) de Lunes a Viernes
-    - cron: '27 10 * * 1-5'
+    - cron: '27 08 * * 1-5'
   workflow_dispatch:
 
 jobs:
