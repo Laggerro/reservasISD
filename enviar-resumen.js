@@ -64,11 +64,18 @@ async function generarYEnviarReporte() {
   const reservasRef = db.ref('reservas');
 
   try {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      throw new Error('Faltan las variables SMTP_USER o SMTP_PASS en los secrets del workflow.');
+    }
+
     const destinatarios = await obtenerDestinatariosReporte();
     if (destinatarios.length === 0) {
       console.log("⚠️ No hay destinatarios configurados. Proceso cancelado.");
       process.exit(0);
     }
+
+    await transporter.verify();
+    console.log('✅ Conexión SMTP verificada con Gmail.');
 
     const snapshot = await reservasRef.once('value');
     const reservas = snapshot.val();
@@ -134,6 +141,7 @@ async function generarYEnviarReporte() {
     console.log("✅ Reporte enviado con éxito. ID del mensaje:", info.messageId);
   } catch (error) {
     console.error("❌ Error al procesar o enviar el reporte diario:", error);
+    process.exit(1);
   }
   process.exit(0);
 }
