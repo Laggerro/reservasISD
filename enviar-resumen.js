@@ -75,7 +75,7 @@ async function verificarHoraDeEnvio() {
 
   console.log(`⏰ Hora actual en Argentina: ${String(hora).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`);
 
-  if (minutosActualesTotales >= objetivo - 2 && minutosActualesTotales <= objetivo + 2) {
+  if (minutosActualesTotales >= objetivo - 12 && minutosActualesTotales <= objetivo + 12) {
     console.log("🎯 Coincidencia con la hora programada de envío fijo: 07:32.");
     return true;
   }
