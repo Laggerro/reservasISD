@@ -58,7 +58,39 @@ function obtenerDatosArgentina() {
   return { fechaHoy, fechaAmigable };
 }
 
+async function verificarHoraDeEnvio() {
+  const ahora = new Date();
+  const fmtHora = new Intl.DateTimeFormat('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
+  const partesHora = fmtHora.formatToParts(ahora);
+  const hora = parseInt(partesHora.find(p => p.type === 'hour')?.value || '0', 10);
+  const minutos = parseInt(partesHora.find(p => p.type === 'minute')?.value || '0', 10);
+  const minutosActualesTotales = hora * 60 + minutos;
+  const objetivo = 7 * 60 + 32;
+
+  console.log(`⏰ Hora actual en Argentina: ${String(hora).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`);
+
+  if (minutosActualesTotales >= objetivo - 2 && minutosActualesTotales <= objetivo + 2) {
+    console.log("🎯 Coincidencia con la hora programada de envío fijo: 07:32.");
+    return true;
+  }
+
+  console.log("⏸️ No es momento de enviar el reporte. Envío programado para las 07:32.");
+  return false;
+}
+
 async function generarYEnviarReporte() {
+  const esHoraDeEnvio = await verificarHoraDeEnvio();
+  if (!esHoraDeEnvio) {
+    console.log("⏸️ El script finaliza pacíficamente.");
+    process.exit(0);
+  }
+
   console.log("🚀 ¡Iniciando generación de reporte diario!");
   const { fechaHoy, fechaAmigable } = obtenerDatosArgentina();
   const reservasRef = db.ref('reservas');

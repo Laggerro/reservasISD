@@ -35,35 +35,6 @@
                 </div>
             </div>
 
-            <!-- NUEVO: CONFIGURACIÓN GENERAL DEL SISTEMA (Habilitar y programar reporte) -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-amber-500 mt-6">
-                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                    <i class="fa-solid fa-clock text-amber-600 mr-1"></i> Configuración de Reporte Diario
-                </h2>
-                <p class="text-xs text-gray-500 mb-4">
-                    Definí a qué hora se enviará el correo resumen.
-                    <strong>Podés ingresar varias horas separadas por coma (ej: 08:00, 13:30, 19:00)</strong>.
-                </p>
-                <div class="flex flex-col sm:flex-row items-end gap-4">
-                    <div class="flex-grow">
-                        <label class="block text-gray-700 text-xs font-bold mb-1">Horarios de Envío (Formatos de 24
-                            hs):</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <i class="fa-regular fa-clock text-xs"></i>
-                            </span>
-                            <!-- Cambiamos el input de "time" a "text" para que permita escribir comas y múltiples horas de corrido -->
-                            <input type="text" id="config-hora-reporte"
-                                class="w-full border rounded-xl pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                                placeholder="Ej: 08:00, 13:00, 19:30" required>
-                        </div>
-                    </div>
-                    <button id="btn-guardar-hora"
-                        class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-md text-xs transition-all active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap">
-                        <i class="fa-solid fa-floppy-disk"></i> Guardar Horarios
-                    </button>
-                </div>
-            </div>
             <div class="bg-white p-6 rounded-2xl shadow-md">
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
                     <i class="fa-solid fa-plus-circle text-blue-600 mr-1"></i>Nuevo Recurso

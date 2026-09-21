@@ -2,9 +2,8 @@ name: Enviar Reporte Diario de Reservas
 
 on:
   schedule:
-    # GitHub usa UTC. Para correr a las 07:37 ART (UTC-3) de Lunes a Viernes:
-    # 07:37 ART = 10:37 UTC
-    - cron: '37 10 * * 1-5'
+    # Envío fijo diario a las 07:32 Argentina (10:32 UTC)
+    - cron: '32 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -18,11 +17,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Show current time in UTC and ART
-        run: |
-          echo "UTC: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "ART: $(TZ=America/Argentina/Buenos_Aires date '+%Y-%m-%d %H:%M:%S ART')"
 
       - name: Install dependencies
         run: |

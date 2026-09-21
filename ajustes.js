@@ -15,9 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-const configHoraReporte = document.getElementById('config-hora-reporte');
-const btnGuardarHora = document.getElementById('btn-guardar-hora');
-const txtStatusConfig = document.getElementById('txt-status-config');
 const btnBorrarIntentos = document.getElementById('btn-borrar-intentos');
 //const selectIntentos = document.getElementById('select-intentos-acceso');
 
@@ -81,8 +78,7 @@ function inicializarPanel() {
     escucharYListarEquipos();
     escucharYListarAdmins();
     escucharYListarProfesores();
-    escucharYListarIntentosAcceso(); // <-- AGREGAR ESTA LÍNEA
-    cargarConfiguracionHora();
+    escucharYListarIntentosAcceso();
 }
 
 // ======================================================
@@ -483,62 +479,3 @@ if (btnBorrarIntentos) {
     });
 }
 
-// ==========================================
-// MÓDULO D: CONFIGURACIÓN GENERAL DEL REPORTE
-// ==========================================
-
-// 1. Leer la hora guardada en Firebase y rellenar el input
-async function cargarConfiguracionHora() {
-    try {
-
-        const configRef = ref(db, 'configuracion/hora_reporte');
-        const snapshot = await get(configRef);
-
-        if (snapshot.exists()) {
-            configHoraReporte.value = snapshot.val();
-            console.log("Hora de reporte cargada desde la BD:", snapshot.val());
-        } else {
-            configHoraReporte.value = "08:00"; // Hora por defecto 
-            console.log("No se encontró hora configurada. Se estableció 08:00 por defecto.");
-        }
-    } catch (error) {
-        console.error("Error al cargar la hora del reporte:", error);
-    }
-}
-
-// 2. Guardar la nueva hora seleccionada por el Administrador
-btnGuardarHora.addEventListener('click', async (e) => {
-    e.preventDefault(); // Evita recargas 
-    const nuevaHora = configHoraReporte.value.trim();
-    if (!nuevaHora) {
-        alert("Por favor, ingresá al menos un horario válido.");
-        return;
-    }
-
-    try {
-        btnGuardarHora.disabled = true;
-        btnGuardarHora.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Guardando...`;
-
-        // directamente al nodo de configuración
-        const horaRef = ref(db, 'configuracion/hora_reporte');
-        await set(horaRef, nuevaHora);
-
-        // PROTECCIÓN: Solo manejamos la clase si el elemento realmente existe en el HTML
-        if (txtStatusConfig) {
-            txtStatusConfig.classList.remove('hidden');
-            setTimeout(() => {
-                txtStatusConfig.classList.add('hidden');
-            }, 3000);
-        } else {
-            // Si no existe el elemento mostrar un alert simple
-            alert("¡Horarios guardados con éxito!");
-        }
-
-    } catch (error) {
-        console.error("Error al guardar la configuración de hora:", error);
-        alert("No se pudo guardar la configuración en la base de datos.");
-    } finally {
-        btnGuardarHora.disabled = false;
-        btnGuardarHora.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Guardar Horarios`;
-    }
-});
