@@ -3,7 +3,7 @@ name: Enviar Reporte Diario de Reservas
 on:
   schedule:
     # Envío fijo diario a las 07:32 Argentina (10:32 UTC)
-    - cron: '32 10 * * *'
+    - cron: '38 09 * * *'
   workflow_dispatch:
 
 jobs:
