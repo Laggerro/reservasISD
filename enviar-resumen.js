@@ -126,7 +126,7 @@ async function generarYEnviarReporte() {
     } else {
       contenidoHtml = ` 
         <h2 style="font-family: sans-serif; color: #1e3a8a;">☀️ Reporte Diario de Reservas - ${fechaAmigable}</h2> 
-        <p style="font-family: sans-serif; color: #374151;">Buen día. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>`;
+        <p style="font-family: sans-serif; color: #374151;">Buen día!. No se registran reservas de recursos para el día de hoy. ¡Que tengan una excelente jornada!</p>`;
     }
 
     console.log(`📧 Intentando enviar reporte diario a: [${destinatarios.join(', ')}]`);
